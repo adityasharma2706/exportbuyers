@@ -1,2 +1,18 @@
 node_modules/
 dist/
+
+# Next.js build output and generated types
+.next/
+next-env.d.ts
+*.tsbuildinfo
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Local env
+.env
+.env.*
+!.env.example

@@ -1,0 +1,391 @@
+// Pinned Public Suffix List used by M10 identifier normalisation (TS and Python read this
+// same file; see LLD M10 "Normalisation spec").
+//
+// Format: https://publicsuffix.org/list/ — one rule per line, "//" comments, "*." wildcard
+// rules, "!" exception rules. Rules are matched label by label, right to left. When no rule
+// matches, the implicit rule "*" applies (the TLD is the public suffix), so every plain TLD
+// (.com, .de, .io, ...) works without being listed; only multi-label suffixes must appear.
+//
+// PIN: m10-psl-2026-09-25. This snapshot carries the multi-label ICANN suffixes of the
+// markets the product covers plus common private hosting suffixes. Replacing it with a newer
+// upstream snapshot is a data change that re-keys some hashes: bump the pin, re-run the shared
+// vectors in both languages, and re-project (m09.project) before deploying.
+
+// ===BEGIN ICANN DOMAINS===
+
+// in : India
+in
+co.in
+firm.in
+net.in
+org.in
+gen.in
+ind.in
+nic.in
+ac.in
+edu.in
+res.in
+gov.in
+mil.in
+
+// uk : United Kingdom
+uk
+ac.uk
+co.uk
+gov.uk
+ltd.uk
+me.uk
+net.uk
+nhs.uk
+org.uk
+plc.uk
+police.uk
+sch.uk
+
+// au : Australia
+au
+com.au
+net.au
+org.au
+edu.au
+gov.au
+asn.au
+id.au
+
+// nz : New Zealand
+nz
+ac.nz
+co.nz
+geek.nz
+gen.nz
+govt.nz
+net.nz
+org.nz
+school.nz
+
+// jp : Japan (selected)
+jp
+ac.jp
+ad.jp
+co.jp
+ed.jp
+go.jp
+gr.jp
+lg.jp
+ne.jp
+or.jp
+*.kawasaki.jp
+*.kitakyushu.jp
+*.kobe.jp
+*.nagoya.jp
+*.sapporo.jp
+*.sendai.jp
+*.yokohama.jp
+!city.kawasaki.jp
+!city.kitakyushu.jp
+!city.kobe.jp
+!city.nagoya.jp
+!city.sapporo.jp
+!city.sendai.jp
+!city.yokohama.jp
+
+// cn : China
+cn
+ac.cn
+com.cn
+edu.cn
+gov.cn
+net.cn
+org.cn
+mil.cn
+
+// hk : Hong Kong
+hk
+com.hk
+edu.hk
+gov.hk
+idv.hk
+net.hk
+org.hk
+
+// tw : Taiwan
+tw
+edu.tw
+gov.tw
+mil.tw
+com.tw
+net.tw
+org.tw
+idv.tw
+
+// kr : South Korea
+kr
+ac.kr
+co.kr
+go.kr
+ne.kr
+or.kr
+re.kr
+
+// sg : Singapore
+sg
+com.sg
+net.sg
+org.sg
+gov.sg
+edu.sg
+per.sg
+
+// my : Malaysia
+my
+biz.my
+com.my
+edu.my
+gov.my
+mil.my
+name.my
+net.my
+org.my
+
+// th : Thailand
+th
+ac.th
+co.th
+go.th
+in.th
+mi.th
+net.th
+or.th
+
+// id : Indonesia
+id
+ac.id
+biz.id
+co.id
+go.id
+mil.id
+my.id
+net.id
+or.id
+sch.id
+web.id
+
+// ph : Philippines
+ph
+com.ph
+net.ph
+org.ph
+gov.ph
+edu.ph
+
+// vn : Vietnam
+vn
+com.vn
+net.vn
+org.vn
+edu.vn
+gov.vn
+biz.vn
+
+// bd : Bangladesh
+*.bd
+
+// np : Nepal
+*.np
+
+// lk : Sri Lanka
+lk
+com.lk
+org.lk
+net.lk
+edu.lk
+gov.lk
+
+// pk : Pakistan
+pk
+com.pk
+net.pk
+org.pk
+edu.pk
+gov.pk
+biz.pk
+
+// ae : United Arab Emirates
+ae
+co.ae
+net.ae
+org.ae
+sch.ae
+ac.ae
+gov.ae
+mil.ae
+
+// sa : Saudi Arabia
+sa
+com.sa
+net.sa
+org.sa
+gov.sa
+med.sa
+pub.sa
+edu.sa
+sch.sa
+
+// qa, om, bh, kw, jo : Gulf and Levant
+qa
+com.qa
+edu.qa
+gov.qa
+net.qa
+org.qa
+om
+co.om
+com.om
+net.om
+org.om
+bh
+com.bh
+net.bh
+org.bh
+kw
+com.kw
+net.kw
+org.kw
+jo
+com.jo
+net.jo
+org.jo
+
+// il : Israel
+il
+ac.il
+co.il
+gov.il
+net.il
+org.il
+
+// tr : Turkey
+tr
+av.tr
+bel.tr
+biz.tr
+com.tr
+gen.tr
+net.tr
+org.tr
+web.tr
+
+// eg, ma, tn, ng, gh, ke, tz, ug, et, mu, za : Africa
+eg
+com.eg
+net.eg
+org.eg
+ma
+co.ma
+net.ma
+org.ma
+tn
+com.tn
+ng
+com.ng
+net.ng
+org.ng
+gh
+com.gh
+ke
+co.ke
+ne.ke
+or.ke
+tz
+co.tz
+ug
+co.ug
+et
+com.et
+mu
+com.mu
+co.mu
+za
+ac.za
+co.za
+gov.za
+net.za
+org.za
+web.za
+
+// br, ar, mx, co, pe, cl, ec, uy, ve : Americas
+br
+com.br
+ind.br
+net.br
+org.br
+gov.br
+ar
+com.ar
+net.ar
+org.ar
+mx
+com.mx
+gob.mx
+net.mx
+org.mx
+co
+com.co
+net.co
+org.co
+pe
+com.pe
+net.pe
+org.pe
+ec
+com.ec
+uy
+com.uy
+ve
+com.ve
+
+// Europe (selected second-level suffixes)
+fr
+asso.fr
+com.fr
+gouv.fr
+nom.fr
+es
+com.es
+nom.es
+org.es
+pl
+com.pl
+net.pl
+org.pl
+ua
+com.ua
+net.ua
+org.ua
+gr
+com.gr
+pt
+com.pt
+cy
+com.cy
+ru
+ac.ru
+
+// ===END ICANN DOMAINS===
+// ===BEGIN PRIVATE DOMAINS===
+
+github.io
+blogspot.com
+herokuapp.com
+appspot.com
+firebaseapp.com
+web.app
+pages.dev
+vercel.app
+netlify.app
+azurewebsites.net
+cloudfront.net
+myshopify.com
+wixsite.com
+
+// ===END PRIVATE DOMAINS===

@@ -1,0 +1,87 @@
+"""M15 Coverage matrix builder — Python public API (knowledge plane). Data side of REQ-012.
+
+Computes Strong / Partial / Limited per country × HS heading, plus a country-level fallback row
+(hs_heading '*'), from source-type availability, company counts and freshness in the evidence
+store (M09). Recomputed per cell on EV-05, nightly, and at the end of M21 runs. The serving plane
+reads cells through the TS module (IF-15a coverage()).
+"""
+from .jobs import (
+    DEBOUNCE_SECONDS,
+    EV_DISCOVERY_COMPLETED,
+    NIGHTLY_CRON,
+    RECOMPUTE_ALL_JOB,
+    RECOMPUTE_CELL_JOB,
+    RecomputeAllPayload,
+    RecomputeCellPayload,
+    cell_idempotency_key,
+    debounce_window,
+    enqueue_recompute_all,
+    enqueue_recompute_cell,
+    parse_discovery_completed,
+    register_coverage_jobs,
+    set_store_factory_for_testing,
+    set_tx_factory_for_testing,
+)
+from .matrix import RecomputeResult, recompute_all, recompute_cell
+from .rules import (
+    COUNTRY_FALLBACK,
+    COUNTRY_LEVEL_SUFFIX,
+    EVIDENCE_ATTRIBUTES,
+    FRESH_DAYS,
+    KEY_LIMITED,
+    KEY_PARTIAL_FEW,
+    KEY_PARTIAL_WEB_ONLY,
+    KEY_STRONG_CUSTOMS,
+    PARTIAL_MIN_FRESH,
+    RULE_V,
+    STRONG_MIN_FRESH,
+    CellCounts,
+    CoverageCell,
+    build_cell,
+    classify,
+    display_sources,
+    fresh_cutoff,
+)
+from .store import CoverageStore, MemoryCoverageStore, MemoryEvidence, PgCoverageStore
+
+__all__ = [
+    "COUNTRY_FALLBACK",
+    "COUNTRY_LEVEL_SUFFIX",
+    "DEBOUNCE_SECONDS",
+    "EVIDENCE_ATTRIBUTES",
+    "EV_DISCOVERY_COMPLETED",
+    "FRESH_DAYS",
+    "KEY_LIMITED",
+    "KEY_PARTIAL_FEW",
+    "KEY_PARTIAL_WEB_ONLY",
+    "KEY_STRONG_CUSTOMS",
+    "NIGHTLY_CRON",
+    "PARTIAL_MIN_FRESH",
+    "RECOMPUTE_ALL_JOB",
+    "RECOMPUTE_CELL_JOB",
+    "RULE_V",
+    "STRONG_MIN_FRESH",
+    "CellCounts",
+    "CoverageCell",
+    "CoverageStore",
+    "MemoryCoverageStore",
+    "MemoryEvidence",
+    "PgCoverageStore",
+    "RecomputeAllPayload",
+    "RecomputeCellPayload",
+    "RecomputeResult",
+    "build_cell",
+    "cell_idempotency_key",
+    "classify",
+    "debounce_window",
+    "display_sources",
+    "enqueue_recompute_all",
+    "enqueue_recompute_cell",
+    "fresh_cutoff",
+    "parse_discovery_completed",
+    "recompute_all",
+    "recompute_cell",
+    "register_coverage_jobs",
+    "set_store_factory_for_testing",
+    "set_tx_factory_for_testing",
+]

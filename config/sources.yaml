@@ -1,0 +1,197 @@
+# M08 Source licence register (LLD M08, DS-02). REQ-036; enabling REQ-033 and REQ-048.
+#
+# THIS FILE IS THE SOURCE OF TRUTH for knowledge.source. Changes are made by a pull request to this
+# file, which must also add a migration that upserts the changed rows (see
+# db/migrations/0008_m08_source_register.sql for the initial seed). The Python test
+# kp/m08_sources/test_m08_sources.py fails if this file and the seed migration disagree.
+#
+# Fields (all required unless marked optional):
+#   id                  stable id, e.g. 'web.crawl', 'customs.us.<vendor>', 'registry.gb.ch'
+#   source_type         customs | website | directory | registry | sanctions | market_stats |
+#                       nomenclature | user_report | operator
+#   can_store           raw payloads may be landed in object storage (false = in-memory processing only)
+#   can_display         facts from this source may be shown to users
+#   can_export          facts from this source may appear in user exports (REQ-048)
+#   retention_days      raw-object retention; null = keep until the source row changes (optional)
+#   attribution_text    shown next to facts from this source (REQ-033)
+#   personal_data_class none | business_contact | named_person
+#   allowed_regions     ISO 3166-1 alpha-2 codes of the data subjects this source may be used for; '*' = all
+#   status              active | disabled | prohibited
+#   notes               free text (optional)
+#   domains             prohibited rows only: hosts the HTTP helper must never fetch (optional)
+#
+# A connector refuses to run for any id that is not listed here with status 'active'.
+# LinkedIn and every site whose terms forbid automated collection are listed as 'prohibited'.
+
+sources:
+  - id: web.crawl
+    source_type: website
+    can_store: true
+    can_display: true
+    can_export: true
+    retention_days: 365
+    attribution_text: "Source: the company's own public website"
+    personal_data_class: business_contact
+    allowed_regions: ["*"]
+    status: active
+    notes: "Robots-respecting crawl of company websites. Only business contact details are kept."
+
+  - id: registry.gb.ch
+    source_type: registry
+    can_store: true
+    can_display: true
+    can_export: true
+    retention_days: null
+    attribution_text: "Contains public sector information from Companies House licensed under the Open Government Licence v3.0"
+    personal_data_class: named_person
+    allowed_regions: ["GB"]
+    status: active
+    notes: "Companies House public data product (OGL v3.0). Officer names are named-person data."
+
+  - id: registry.gleif
+    source_type: registry
+    can_store: true
+    can_display: true
+    can_export: true
+    retention_days: null
+    attribution_text: "Legal Entity Identifier data from GLEIF, available under CC0"
+    personal_data_class: none
+    allowed_regions: ["*"]
+    status: active
+    notes: "GLEIF golden copy (CC0)."
+
+  - id: sanctions.un.sc
+    source_type: sanctions
+    can_store: true
+    can_display: true
+    can_export: false
+    retention_days: 730
+    attribution_text: "Source: United Nations Security Council Consolidated List"
+    personal_data_class: named_person
+    allowed_regions: ["*"]
+    status: active
+    notes: "Used for screening; listed entities are shown as blocked, not exported."
+
+  - id: sanctions.us.ofac
+    source_type: sanctions
+    can_store: true
+    can_display: true
+    can_export: false
+    retention_days: 730
+    attribution_text: "Source: U.S. Treasury OFAC Specially Designated Nationals List"
+    personal_data_class: named_person
+    allowed_regions: ["*"]
+    status: active
+    notes: "SDN and consolidated non-SDN lists."
+
+  - id: sanctions.eu.fsf
+    source_type: sanctions
+    can_store: true
+    can_display: true
+    can_export: false
+    retention_days: 730
+    attribution_text: "Source: EU Financial Sanctions Files (consolidated list)"
+    personal_data_class: named_person
+    allowed_regions: ["*"]
+    status: active
+    notes: "EU consolidated financial sanctions list."
+
+  - id: sanctions.gb.ofsi
+    source_type: sanctions
+    can_store: true
+    can_display: true
+    can_export: false
+    retention_days: 730
+    attribution_text: "Contains public sector information from HM Treasury (OFSI) licensed under the Open Government Licence v3.0"
+    personal_data_class: named_person
+    allowed_regions: ["*"]
+    status: active
+    notes: "UK consolidated list of financial sanctions targets."
+
+  - id: nomenclature.in.itchs
+    source_type: nomenclature
+    can_store: true
+    can_display: true
+    can_export: true
+    retention_days: null
+    attribution_text: "Source: ITC(HS) classification, Directorate General of Foreign Trade, Government of India"
+    personal_data_class: none
+    allowed_regions: ["*"]
+    status: active
+    notes: "Indian tariff nomenclature used for HS code pickers."
+
+  - id: market_stats.un.comtrade
+    source_type: market_stats
+    can_store: true
+    can_display: true
+    can_export: false
+    retention_days: null
+    attribution_text: "Source: UN Comtrade Database, United Nations"
+    personal_data_class: none
+    allowed_regions: ["*"]
+    status: active
+    notes: "Aggregate trade statistics. Display with attribution; bulk redistribution is not permitted, so no export."
+
+  - id: user_report
+    source_type: user_report
+    can_store: true
+    can_display: false
+    can_export: false
+    retention_days: 730
+    attribution_text: "Reported by a user"
+    personal_data_class: business_contact
+    allowed_regions: ["*"]
+    status: active
+    notes: "User corrections and reports. Not shown or exported until an operator confirms them (operator.manual)."
+
+  - id: operator.manual
+    source_type: operator
+    can_store: true
+    can_display: true
+    can_export: true
+    retention_days: null
+    attribution_text: "Verified by our research team"
+    personal_data_class: business_contact
+    allowed_regions: ["*"]
+    status: active
+    notes: "Operator-entered or operator-confirmed facts."
+
+  # ---- Prohibited: terms forbid scraping / automated collection ------------------------------
+  - id: linkedin
+    source_type: directory
+    can_store: false
+    can_display: false
+    can_export: false
+    retention_days: null
+    attribution_text: "LinkedIn"
+    personal_data_class: named_person
+    allowed_regions: []
+    status: prohibited
+    notes: "LinkedIn User Agreement prohibits scraping and automated collection. Never connect."
+    domains: ["linkedin.com", "lnkd.in"]
+
+  - id: social.meta
+    source_type: directory
+    can_store: false
+    can_display: false
+    can_export: false
+    retention_days: null
+    attribution_text: "Meta (Facebook, Instagram)"
+    personal_data_class: named_person
+    allowed_regions: []
+    status: prohibited
+    notes: "Meta terms prohibit automated data collection without prior permission."
+    domains: ["facebook.com", "fb.com", "instagram.com"]
+
+  - id: social.x
+    source_type: directory
+    can_store: false
+    can_display: false
+    can_export: false
+    retention_days: null
+    attribution_text: "X (Twitter)"
+    personal_data_class: named_person
+    allowed_regions: []
+    status: prohibited
+    notes: "X terms prohibit crawling or scraping without prior written consent."
+    domains: ["x.com", "twitter.com"]
