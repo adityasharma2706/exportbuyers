@@ -7,7 +7,7 @@ import '../globals.css';
 import { createElement as h, type ReactNode } from 'react';
 import { NextIntlClientProvider } from 'next-intl';
 import { getMessages, getTranslations, setRequestLocale } from 'next-intl/server';
-import { notFound } from 'next/navigation';
+import { notFound } from 'next/navigation.js';
 import {
   AppShell,
   CLIENT_NAMESPACES,
@@ -63,11 +63,12 @@ export default async function LocaleLayout({ children, params }: LayoutParams & 
     h(
       'body',
       { className: 'antialiased' },
-      h(
-        NextIntlClientProvider,
-        { locale, timeZone: TIME_ZONE, messages: pickMessages(messages, CLIENT_NAMESPACES) },
-        h(AppShell, null, children),
-      ),
+      h(NextIntlClientProvider, {
+        locale,
+        timeZone: TIME_ZONE,
+        messages: pickMessages(messages, CLIENT_NAMESPACES),
+        children: h(AppShell, null, children),
+      }),
     ),
   );
 }

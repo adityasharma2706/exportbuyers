@@ -105,7 +105,7 @@ export function CostBadge(props: CostBadgeProps): ReactNode {
   const [catalogue, setCatalogue]: [PriceCatalogueDto | null, (next: PriceCatalogueDto | null) => void] = useState(
     initialCatalogue ?? client.peek(),
   );
-  const [fetchError, setFetchError]: [string | null, (next: string | null) => void] = useState(null);
+  const [fetchError, setFetchError]: [string | null, (next: string | null) => void] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -133,7 +133,7 @@ export function CostBadge(props: CostBadgeProps): ReactNode {
   // Keep the latest callbacks without re-running effects when the parent passes new closures.
   const callbacks = useRef({ onUnavailable, onQuote });
   callbacks.current = { onUnavailable, onQuote };
-  const reported = useRef(null);
+  const reported = useRef<string | null>(null);
 
   useEffect(() => {
     const signature =

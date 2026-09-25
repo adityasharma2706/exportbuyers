@@ -4,7 +4,7 @@
  */
 import { createElement as h, type ReactNode } from 'react';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
-import { notFound } from 'next/navigation';
+import { notFound } from 'next/navigation.js';
 import { Card, Icon, Link, NAV_ITEMS, isLocale } from '../../modules/m04_ui/index.js';
 
 interface PageProps {

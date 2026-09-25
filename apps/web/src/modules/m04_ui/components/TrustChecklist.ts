@@ -4,7 +4,7 @@
  * through guardTrustText, so the words "verified" / "genuine" / "guaranteed" can never appear.
  */
 import { createElement as h, type ReactNode } from 'react';
-import { useFormatter, useTranslations } from 'next-intl';
+import { useFormatter, useTranslations, type DateTimeFormatOptions } from 'next-intl';
 import type { TrustCheckDto, TrustLevel, TrustOutcome, TrustResultDto } from '../dto.js';
 import { guardTrustText, isSafeKeySegment, isSafeMessageKey, orderTrustChecks, trustCounts } from '../wording.js';
 import { cx, Icon, Pill, type IconName, type PillTone } from './primitives.js';
@@ -21,7 +21,7 @@ type Translate = ((key: string, values?: Record<string, string | number | Date>)
 };
 
 interface Formatter {
-  dateTime(value: Date, options?: Intl.DateTimeFormatOptions): string;
+  dateTime(value: Date, options?: DateTimeFormatOptions): string;
 }
 
 const LEVEL_TONES: Record<TrustLevel, PillTone> = {
