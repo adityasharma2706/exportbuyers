@@ -1,0 +1,170 @@
+{
+  "meta": {
+    "title": "ExportBuyers: find and check overseas buyers",
+    "titleTemplate": "{page} · ExportBuyers",
+    "description": "Find overseas buyers for your product, see which countries import it, and check a buyer before you share prices or samples."
+  },
+  "app": {
+    "name": "ExportBuyers",
+    "homeLink": "ExportBuyers home"
+  },
+  "shell": {
+    "skipToContent": "Skip to main content",
+    "primaryNav": "Main navigation",
+    "mobileNav": "Main navigation (mobile)",
+    "more": "More",
+    "moreMenu": "More sections",
+    "credits": "{available, plural, one {# credit} other {# credits}}",
+    "creditsLabel": "Credit balance",
+    "footerNote": "Buyer information comes from public and licensed sources. Always check a buyer before you ship."
+  },
+  "nav": {
+    "home": {
+      "label": "Home",
+      "description": "Your next actions, follow-ups due and new buyers for saved searches."
+    },
+    "products": {
+      "label": "My products",
+      "description": "One workspace per product: HS code, description and export policy status."
+    },
+    "markets": {
+      "label": "Markets",
+      "description": "Countries ranked for your product, with how much buyer data we hold for each."
+    },
+    "buyers": {
+      "label": "Find buyers",
+      "description": "Search for buyers and narrow the list with filters."
+    },
+    "myBuyers": {
+      "label": "My buyers",
+      "description": "Your shortlist and the status of every conversation, across products."
+    },
+    "check": {
+      "label": "Check a buyer",
+      "description": "Got an enquiry from someone new? Run checks before you reply."
+    },
+    "learn": {
+      "label": "Learn",
+      "description": "Plain-English guides: HS codes, IEC, Incoterms, and how to spot a scam."
+    },
+    "account": {
+      "label": "Account",
+      "description": "Plan, credits, invoices and your data rights."
+    }
+  },
+  "home": {
+    "title": "Start exporting with confidence",
+    "intro": "Tell us what you make, see where it sells, and find buyers you can check before you reach out.",
+    "sectionsHeading": "Where do you want to go?"
+  },
+  "common": {
+    "loading": "Loading…",
+    "retry": "Try again",
+    "close": "Close",
+    "learnMore": "Learn more",
+    "notFoundTitle": "Page not found",
+    "notFoundBody": "The page you were looking for does not exist or has moved.",
+    "backHome": "Back to home"
+  },
+  "cost": {
+    "label": "Cost",
+    "free": "Free",
+    "credits": "{credits, plural, one {# credit} other {# credits}}",
+    "creditsWithInr": "{credits, plural, one {# credit} other {# credits}} ({inr})",
+    "perItem": "{unit, plural, one {# credit} other {# credits}} each × {quantity}",
+    "countryMultiplier": "{country} is priced at {multiplier}× the usual rate",
+    "loading": "Checking price…",
+    "unavailable": "Price unavailable",
+    "unavailableHint": "We could not load the current price, so this action is paused. Please try again shortly."
+  },
+  "coverageUi": {
+    "label": {
+      "strong": "Strong",
+      "partial": "Partial",
+      "limited": "Limited"
+    },
+    "aria": "Buyer data coverage: {label}",
+    "explainButton": "Why this label?",
+    "countryLevel": "This is based on all products for this country, because we have little data for this product alone.",
+    "sourcesNone": "no sources yet",
+    "source": {
+      "customs": "shipment records",
+      "registry": "company registries",
+      "directory": "business directories",
+      "web": "company websites",
+      "marketplace": "online marketplaces",
+      "trade_show": "trade show lists"
+    }
+  },
+  "coverage": {
+    "strong": {
+      "customs": "Strong: based on shipment records. We hold {count, plural, one {# recently checked buyer} other {# recently checked buyers}} from {sources}."
+    },
+    "partial": {
+      "web_only": "Partial: based on business directories and websites. We hold {count, plural, one {# recently checked buyer} other {# recently checked buyers}} from {sources}.",
+      "few": "Partial: {count, plural, one {# recently checked buyer} other {# recently checked buyers}} from {sources}, which is not yet enough for a strong label."
+    },
+    "limited": "Limited: few sources for this country so far. Results may be incomplete."
+  },
+  "trust": {
+    "heading": "Buyer checks",
+    "checksPassed": "Checks passed: {passed} of {total}",
+    "level": {
+      "high": "Trust: High",
+      "medium": "Trust: Medium",
+      "low": "Trust: Low",
+      "unknown": "Trust: Not enough information"
+    },
+    "outcome": {
+      "pass": "Passed",
+      "fail": "Did not pass",
+      "unknown": "Could not check"
+    },
+    "checkedOn": "Checked {date}",
+    "notChecked": "Not checked yet",
+    "check": {
+      "registered_entity": {
+        "name": "Registered company"
+      },
+      "website_consistent": {
+        "name": "Website matches the company"
+      },
+      "domain_age": {
+        "name": "Website age"
+      },
+      "corporate_email": {
+        "name": "Company email address"
+      },
+      "recent_trade": {
+        "name": "Recent trade activity"
+      },
+      "sanctions": {
+        "name": "Sanctions lists"
+      },
+      "other": {
+        "name": "Other check"
+      }
+    }
+  },
+  "disclaimer": {
+    "label": "Please note",
+    "hs": "HS code suggestions are a starting point. Confirm the final code with your customs broker or the ITC-HS schedule before you file.",
+    "trust": "These checks use public and licensed sources and can be out of date. They reduce risk but cannot rule it out. Use secure payment terms for new buyers.",
+    "sanctions": "Sanctions screening compares names against published lists. A clear result is not legal advice; check again before you sign a contract or ship.",
+    "coverage": "Coverage labels show how much buyer data we hold for a country and product. Some real buyers may be missing from the list."
+  },
+  "signupGate": {
+    "title": "Create a free account to continue",
+    "cta": "Sign up free",
+    "secondary": "Already have an account? Log in",
+    "noCard": "No card needed.",
+    "reason": {
+      "default": "Sign up to keep going. Your search so far will be saved.",
+      "reveal": "Sign up to see contact details for this buyer.",
+      "save": "Sign up to save buyers to your shortlist.",
+      "limit": "You have reached the limit for visitors. Sign up to keep searching.",
+      "draft": "Sign up to write an outreach email to this buyer.",
+      "export": "Sign up to download your buyer list."
+    }
+  }
+}

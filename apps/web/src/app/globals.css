@@ -1,0 +1,64 @@
+/*
+ * M04 — design tokens and global styles (Tailwind CSS v4, CSS-first configuration).
+ * Tokens are CSS variables so every component reads one source of truth. System fonts only: no
+ * web-font download on 4G, which keeps LCP inside budget and avoids font-swap layout shift.
+ */
+@import "tailwindcss";
+
+@theme {
+  --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", "Noto Sans Devanagari", sans-serif;
+
+  --color-canvas: #f7f8fa;
+  --color-surface: #ffffff;
+  --color-surface-muted: #eef1f4;
+  --color-line: #d9dee4;
+  --color-ink: #16202b;
+  --color-ink-muted: #56626f;
+
+  --color-brand-50: #ecfdf8;
+  --color-brand-600: #0f766e;
+  --color-brand-700: #0b5f59;
+  --color-brand-800: #084a45;
+
+  --color-positive-50: #ecfdf3;
+  --color-positive-700: #15703d;
+
+  --color-caution-50: #fff8e6;
+  --color-caution-700: #8a5a00;
+  --color-caution-800: #6d4700;
+
+  --color-danger-50: #fef2f2;
+  --color-danger-600: #c0262d;
+  --color-danger-700: #9f1d23;
+
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+}
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    font-family: var(--font-sans);
+    background-color: var(--color-canvas);
+    color: var(--color-ink);
+    line-height: 1.5;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-brand-600);
+    outline-offset: 2px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}

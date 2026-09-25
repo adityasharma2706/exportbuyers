@@ -1,0 +1,84 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  web:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: pgvector/pgvector:pg16
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U postgres" --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      APP_ENV: test
+      AWS_REGION: ap-south-1
+      DATABASE_URL: postgres://postgres:postgres@localhost:5432/postgres?sslmode=disable
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm ci
+        working-directory: apps/web
+      - name: Migrate
+        run: |
+          curl -fsSL -o /usr/local/bin/dbmate https://github.com/amacneil/dbmate/releases/latest/download/dbmate-linux-amd64
+          chmod +x /usr/local/bin/dbmate
+          dbmate --migrations-dir db/migrations --no-dump-schema up
+      - name: Create non-superuser test role (RLS is bypassed by superusers)
+        run: |
+          psql "$DATABASE_URL" -c "do \$\$ begin if not exists (select 1 from pg_roles where rolname='ci_app') then create role ci_app login password 'ci_app'; end if; end \$\$;"
+          psql "$DATABASE_URL" -c "grant app_serving to ci_app; grant create on schema serving to ci_app;"
+      - run: npm run lint
+        working-directory: apps/web
+      - run: npm run build
+        working-directory: apps/web
+      - run: npm test
+        working-directory: apps/web
+        env:
+          TEST_DATABASE_URL: postgres://ci_app:ci_app@localhost:5432/postgres?sslmode=disable
+
+  kp:
+    runs-on: ubuntu-latest
+    env:
+      APP_ENV: test
+      AWS_REGION: ap-south-1
+    defaults:
+      run:
+        working-directory: py
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -e ".[dev]"
+      - run: lint-imports
+      - run: ruff check kp
+      - run: pytest
+
+  deploy:
+    needs: [web, kp]
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment: staging
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ap-south-1
+      - uses: hashicorp/setup-terraform@v3
+      - run: terraform init -input=false
+        working-directory: infra/terraform
+      - run: terraform apply -input=false -auto-approve -var "env=staging"
+        working-directory: infra/terraform
