@@ -47,7 +47,18 @@ export function initRedis(cfg: PlatformConfig, opts: { url?: string; client?: Re
     connectionName: cfg.serviceName,
   });
   r.on('error', (err: Error) => log.error({ err }, 'redis error'));
-  client = r as RedisLike;
+  // Adapter rather than `r as RedisLike`: ioredis types `set`'s trailing
+  // arguments as an overload set that also accepts callbacks, so the whole
+  // client is not assignable to this narrower interface. Narrowing only
+  // `set` at the call boundary keeps get/del/quit fully type-checked, and
+  // keeps RedisLike hand-written so tests can still supply a fake.
+  const setThrough = r.set as (...a: unknown[]) => Promise<unknown>;
+  client = {
+    get: (key) => r.get(key),
+    set: (key, value, ...args) => setThrough(key, value, ...args),
+    del: (...keys) => r.del(...keys),
+    quit: () => r.quit(),
+  };
   return client;
 }
 
