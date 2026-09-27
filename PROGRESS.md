@@ -3,7 +3,7 @@
 Written by the agent-pipeline orchestrator (spec-implementer stage), one entry per
 module attempt. Generated from `pipeline-progress.json` — edit that, not this.
 
-Last updated: 2026-09-25T18:28:01.046Z
+Last updated: 2026-09-27T18:50:07.561Z
 Plan (docs/implementer.md) hash: 424eed81ea20d85d74663174ecf8fa67
 Idea (docs/idea.md) hash: 4c4e1d74317e25ed1ae767464801f975
 
@@ -451,4 +451,76 @@ Idea (docs/idea.md) hash: 4c4e1d74317e25ed1ae767464801f975
 - Inherited 1 pre-existing typecheck error(s) — NOT this module's fault, not counted against it: M01 x1
   - [pre-existing, owner M01] apps/web/src/modules/m01_platform/redis.ts(50,12): error TS2352: Conversion of type 'Redis' to type 'RedisLike' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
 - Deviations reported: Retry fixed the M01/M02 test type errors by emptying attempt-1's apps/web/next-env.d.ts (its Next type reference made NODE_ENV required on NodeJS.ProcessEnv across the root tsc program); I did not edit the other modules' test files. A future `next build`/`next dev` regenerates that file and will bring the errors back unless those tests pass NODE_ENV or the root tsconfig excludes it.
+
+## M18 Normalisation and entity resolution — success
+
+- Ran: 2026-09-27T17:59:13.940Z to 2026-09-27T18:06:45.138Z
+- Cost: $2.4966 over 66 turns
+- Files written: apps/web/src/modules/m18_resolution/index.ts, apps/web/src/modules/m18_resolution/review.ts, db/migrations/0018_m18_entity_resolution.sql, py/kp/m18_resolution/__init__.py, py/kp/m18_resolution/models.py, py/kp/m18_resolution/normalise.py, py/kp/m18_resolution/resolver.py, py/kp/m18_resolution/store.py, py/kp/m18_resolution/test_m18_resolution.py
+- REQs claimed: REQ-021, REQ-037, REQ-064
+- Inherited 3 pre-existing typecheck error(s) — NOT this module's fault, not counted against it: M01 x2, M02 x1
+  - [pre-existing, owner M01] apps/web/src/modules/m01_platform/scoped.test.ts(53,23): error TS2345: Argument of type '{ APP_ENV: string; AWS_REGION: string; }' is not assignable to parameter of type 'ProcessEnv'.
+  - [pre-existing, owner M01] apps/web/src/modules/m01_platform/scoped.test.ts(147,23): error TS2345: Argument of type '{ APP_ENV: string; AWS_REGION: string; }' is not assignable to parameter of type 'ProcessEnv'.
+  - [pre-existing, owner M02] apps/web/src/modules/m02_queue/queue.test.ts(119,23): error TS2345: Argument of type '{ APP_ENV: string; AWS_REGION: string; }' is not assignable to parameter of type 'ProcessEnv'.
+- Deviations reported: Fuzzy candidates come from a new M18-owned table knowledge.company_match_key (M09's company table has no normalised name or address); companies created outside resolve() are not fuzzy candidates until resolve() matches them by anchor, and there is no backfill
+
+## M19 Buyer classifiers (non-buyer filter + buyer type) — success
+
+- Ran: 2026-09-27T18:06:45.141Z to 2026-09-27T18:11:52.287Z
+- Cost: $1.8654 over 47 turns
+- Files written: config/logistics_entities.yaml, db/migrations/0019_m19_classifier_source.sql, py/kp/m19_classifiers/__init__.py, py/kp/m19_classifiers/classifier.py, py/kp/m19_classifiers/llm.py, py/kp/m19_classifiers/models.py, py/kp/m19_classifiers/rules.py, py/kp/m19_classifiers/test_m19_classifiers.py
+- REQs claimed: REQ-020, REQ-016, REQ-018
+- Inherited 3 pre-existing typecheck error(s) — NOT this module's fault, not counted against it: M01 x2, M02 x1
+  - [pre-existing, owner M01] apps/web/src/modules/m01_platform/scoped.test.ts(53,23): error TS2345: Argument of type '{ APP_ENV: string; AWS_REGION: string; }' is not assignable to parameter of type 'ProcessEnv'.
+  - [pre-existing, owner M01] apps/web/src/modules/m01_platform/scoped.test.ts(147,23): error TS2345: Argument of type '{ APP_ENV: string; AWS_REGION: string; }' is not assignable to parameter of type 'ProcessEnv'.
+  - [pre-existing, owner M02] apps/web/src/modules/m02_queue/queue.test.ts(119,23): error TS2345: Argument of type '{ APP_ENV: string; AWS_REGION: string; }' is not assignable to parameter of type 'ProcessEnv'.
+- Deviations reported: Source 'operator.classifier' (required by LLD M19 step 4) was not in the M08 register; added via migration 0019 only — config/sources.yaml (M08-owned, checked against 0008 by M08's test) was not edited, so the M08 drift check will flag it until M08's owner adds the matching YAML row.
+
+## M20 Web discovery path — success
+
+- Ran: 2026-09-27T18:11:52.289Z to 2026-09-27T18:21:41.319Z
+- Cost: $3.6003 over 80 turns
+- Files written: apps/web/src/modules/m20_discovery/index.ts, config/discovery.yaml, config/discovery_released.yaml, config/prewarm.yaml, py/kp/m20_discovery/__init__.py, py/kp/m20_discovery/config.py, py/kp/m20_discovery/crawl.py, py/kp/m20_discovery/extract.py, py/kp/m20_discovery/jobs.py, py/kp/m20_discovery/models.py, py/kp/m20_discovery/pipeline.py, py/kp/m20_discovery/search.py, py/kp/m20_discovery/test_m20_discovery.py
+- REQs claimed: REQ-015, REQ-016, REQ-017, REQ-024
+- Inherited 3 pre-existing typecheck error(s) — NOT this module's fault, not counted against it: M01 x2, M02 x1
+  - [pre-existing, owner M01] apps/web/src/modules/m01_platform/scoped.test.ts(53,23): error TS2345: Argument of type '{ APP_ENV: string; AWS_REGION: string; }' is not assignable to parameter of type 'ProcessEnv'.
+  - [pre-existing, owner M01] apps/web/src/modules/m01_platform/scoped.test.ts(147,23): error TS2345: Argument of type '{ APP_ENV: string; AWS_REGION: string; }' is not assignable to parameter of type 'ProcessEnv'.
+  - [pre-existing, owner M02] apps/web/src/modules/m02_queue/queue.test.ts(119,23): error TS2345: Argument of type '{ APP_ENV: string; AWS_REGION: string; }' is not assignable to parameter of type 'ProcessEnv'.
+- Deviations reported: Step 5 order changed to resolve → write_assertion(product_evidence) → classify, because M19 classify() must cite evidence assertion ids that only exist after the write
+
+## M21 US customs batch connector and aggregates — success
+
+- Ran: 2026-09-27T18:21:41.320Z to 2026-09-27T18:33:07.121Z
+- Cost: $3.6492 over 82 turns
+- Files written: config/customs_us.yaml, py/kp/m21_customs_us/__init__.py, py/kp/m21_customs_us/config.py, py/kp/m21_customs_us/connector.py, py/kp/m21_customs_us/hs_infer.py, py/kp/m21_customs_us/jobs.py, py/kp/m21_customs_us/lake.py, py/kp/m21_customs_us/models.py, py/kp/m21_customs_us/pipeline.py, py/kp/m21_customs_us/test_m21_customs_us.py, py/kp/m21_customs_us/vendor.py, py/pyproject.toml
+- REQs claimed: REQ-015, REQ-016, REQ-018, REQ-019, REQ-021, REQ-022
+- Inherited 3 pre-existing typecheck error(s) — NOT this module's fault, not counted against it: M01 x2, M02 x1
+  - [pre-existing, owner M01] apps/web/src/modules/m01_platform/scoped.test.ts(53,23): error TS2345: Argument of type '{ APP_ENV: string; AWS_REGION: string; }' is not assignable to parameter of type 'ProcessEnv'.
+  - [pre-existing, owner M01] apps/web/src/modules/m01_platform/scoped.test.ts(147,23): error TS2345: Argument of type '{ APP_ENV: string; AWS_REGION: string; }' is not assignable to parameter of type 'ProcessEnv'.
+  - [pre-existing, owner M02] apps/web/src/modules/m02_queue/queue.test.ts(119,23): error TS2345: Argument of type '{ APP_ENV: string; AWS_REGION: string; }' is not assignable to parameter of type 'ProcessEnv'.
+- Deviations reported: Vendor still open (OQ1): shipped a generic DropVendor (s3://… or local <drop_uri>/week=YYYY-WW/) behind the CustomsUsVendor fetch(week) interface; no customs.us.<vendor> row added to config/sources.yaml, and the weekly schedule is registered only once a vendor is configured
+
+## M22 Enrichment waterfall: discovery-time contacts — success
+
+- Ran: 2026-09-27T18:33:07.124Z to 2026-09-27T18:39:58.132Z
+- Cost: $2.3990 over 49 turns
+- Files written: py/kp/m22_enrichment/__init__.py, py/kp/m22_enrichment/crawl.py, py/kp/m22_enrichment/dns_check.py, py/kp/m22_enrichment/extract.py, py/kp/m22_enrichment/jobs.py, py/kp/m22_enrichment/models.py, py/kp/m22_enrichment/pipeline.py, py/kp/m22_enrichment/test_m22_enrichment.py, py/pyproject.toml
+- REQs claimed: REQ-032, REQ-033, REQ-016
+- Inherited 3 pre-existing typecheck error(s) — NOT this module's fault, not counted against it: M01 x2, M02 x1
+  - [pre-existing, owner M01] apps/web/src/modules/m01_platform/scoped.test.ts(53,23): error TS2345: Argument of type '{ APP_ENV: string; AWS_REGION: string; }' is not assignable to parameter of type 'ProcessEnv'.
+  - [pre-existing, owner M01] apps/web/src/modules/m01_platform/scoped.test.ts(147,23): error TS2345: Argument of type '{ APP_ENV: string; AWS_REGION: string; }' is not assignable to parameter of type 'ProcessEnv'.
+  - [pre-existing, owner M02] apps/web/src/modules/m02_queue/queue.test.ts(119,23): error TS2345: Argument of type '{ APP_ENV: string; AWS_REGION: string; }' is not assignable to parameter of type 'ProcessEnv'.
+- Deviations reported: domain.mx assertions use source_id 'web.crawl' (source register has no DNS source; config/sources.yaml left untouched)
+
+## M23 Registry and domain-signal connectors — success
+
+- Ran: 2026-09-27T18:39:58.134Z to 2026-09-27T18:50:07.561Z
+- Cost: $2.9933 over 69 turns
+- Files written: config/freemail.txt, db/migrations/0023_m23_registry_sources.sql, py/kp/m23_registry/__init__.py, py/kp/m23_registry/api.py, py/kp/m23_registry/cache.py, py/kp/m23_registry/domain.py, py/kp/m23_registry/evidence.py, py/kp/m23_registry/freemail.py, py/kp/m23_registry/jobs.py, py/kp/m23_registry/models.py, py/kp/m23_registry/names.py, py/kp/m23_registry/ratelimit.py, py/kp/m23_registry/registries.py, py/kp/m23_registry/test_m23_registry.py, py/kp/m23_registry/vendor.py, py/kp/m23_registry/vies.py
+- REQs claimed: REQ-027, REQ-030
+- Inherited 3 pre-existing typecheck error(s) — NOT this module's fault, not counted against it: M01 x2, M02 x1
+  - [pre-existing, owner M01] apps/web/src/modules/m01_platform/scoped.test.ts(53,23): error TS2345: Argument of type '{ APP_ENV: string; AWS_REGION: string; }' is not assignable to parameter of type 'ProcessEnv'.
+  - [pre-existing, owner M01] apps/web/src/modules/m01_platform/scoped.test.ts(147,23): error TS2345: Argument of type '{ APP_ENV: string; AWS_REGION: string; }' is not assignable to parameter of type 'ProcessEnv'.
+  - [pre-existing, owner M02] apps/web/src/modules/m02_queue/queue.test.ts(119,23): error TS2345: Argument of type '{ APP_ENV: string; AWS_REGION: string; }' is not assignable to parameter of type 'ProcessEnv'.
+- Deviations reported: DomainSignals.has_mx is bool|None (None = resolver failure) rather than plain bool, so a DNS outage is never read as "no MX"
 

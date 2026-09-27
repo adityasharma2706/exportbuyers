@@ -1,0 +1,131 @@
+# M19 curated list of freight forwarders, carriers, customs brokers and other logistics entities
+# (LLD M19 step 1). A company whose primary domain (or a sub-domain of it) is listed under
+# `domains`, or whose normalised name equals / starts with a listed name, is flagged
+# `logistics_flag` with confidence 1.0 and hidden from buyer results by M10 (not deleted).
+#
+# Names are normalised with the M17/M18 name normaliser (lower-case, transliterated, legal
+# suffixes removed), so "Kuehne + Nagel (UK) Ltd" matches the entry "Kuehne + Nagel".
+# Changes are made by pull request; the classifier re-reads this file when it changes.
+version: 1
+
+domains:
+  - dhl.com
+  - dhl.de
+  - dsv.com
+  - kuehne-nagel.com
+  - dbschenker.com
+  - expeditors.com
+  - chrobinson.com
+  - geodis.com
+  - ceva-logistics.com
+  - nipponexpress.com
+  - kintetsu-world-express.com
+  - kwe.com
+  - hellmann.com
+  - bollore-logistics.com
+  - agility.com
+  - toll.com.au
+  - yusen-logistics.com
+  - sinotrans.com
+  - kerrylogistics.com
+  - rhenus.com
+  - dachser.com
+  - panalpina.com
+  - fedex.com
+  - ups.com
+  - tnt.com
+  - aramex.com
+  - maersk.com
+  - msc.com
+  - cma-cgm.com
+  - hapag-lloyd.com
+  - evergreen-line.com
+  - one-line.com
+  - cosco.com
+  - coscoshipping.com
+  - yangming.com
+  - zim.com
+  - hmm21.com
+  - pilship.com
+  - oocl.com
+  - flexport.com
+  - allcargologistics.com
+  - gati.com
+  - bluedart.com
+  - dtdc.com
+  - transworld.com
+  - seahorsegroup.co.in
+  - emiratesskycargo.com
+  - gac.com
+  - inchcape-shipping.com
+  - wilhelmsen.com
+  - bertling.com
+  - scan-global.com
+  - nnrglobal.com
+  - apexglobe.com
+  - worldwide-logistics.com
+
+names:
+  - DHL Global Forwarding
+  - DHL Express
+  - DHL Supply Chain
+  - DSV
+  - DSV Air & Sea
+  - Kuehne + Nagel
+  - Kuehne Nagel
+  - DB Schenker
+  - Schenker
+  - Expeditors International
+  - C.H. Robinson
+  - CH Robinson Worldwide
+  - GEODIS
+  - CEVA Logistics
+  - Nippon Express
+  - Kintetsu World Express
+  - Hellmann Worldwide Logistics
+  - Bollore Logistics
+  - Agility Logistics
+  - Toll Global Forwarding
+  - Yusen Logistics
+  - Sinotrans
+  - Kerry Logistics
+  - Rhenus Logistics
+  - Dachser
+  - Panalpina
+  - FedEx Trade Networks
+  - UPS Supply Chain Solutions
+  - Aramex
+  - Maersk
+  - A.P. Moller - Maersk
+  - Damco
+  - Mediterranean Shipping Company
+  - CMA CGM
+  - Hapag-Lloyd
+  - Evergreen Marine
+  - Ocean Network Express
+  - COSCO Shipping
+  - Yang Ming Marine Transport
+  - ZIM Integrated Shipping Services
+  - HMM
+  - Pacific International Lines
+  - OOCL
+  - Flexport
+  - Allcargo Logistics
+  - Gati
+  - Blue Dart Express
+  - Transworld Group
+  - GAC
+  - Inchcape Shipping Services
+  - Wilhelmsen Ships Service
+  - Bertling
+  - Scan Global Logistics
+  - Nippon Express USA
+  - Apex Logistics
+  - Pantos Logistics
+  - Dimerco Express
+  - Toll Global Logistics
+  - OEC Group
+  - Shipco Transport
+  - Vanguard Logistics Services
+  - ECU Worldwide
+  - Seko Logistics

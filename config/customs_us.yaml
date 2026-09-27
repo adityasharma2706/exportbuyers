@@ -1,0 +1,29 @@
+# M21 US customs batch connector (LLD M21).
+#
+# The vendor is still an open question (architecture OQ1). Until one is chosen `vendor` stays null:
+# the weekly schedule is then not registered and a manually enqueued m21.ingest_week fails
+# non-retryably with "vendor not configured". Choosing a vendor needs:
+#   1. a `customs.us.<vendor>` row in config/sources.yaml (source_type customs, allowed_regions [US],
+#      can_display/can_export per the licence) plus its seed migration, status active;
+#   2. `vendor: <vendor>` here (or CUSTOMS_US_VENDOR) and the drop location below.
+#
+# Environment overrides: CUSTOMS_US_VENDOR, CUSTOMS_US_DROP_URI, CUSTOMS_US_LAKE_URI.
+
+vendor: null
+
+# Where the vendor delivers each week's files: <drop_uri>/week=YYYY-WW/*.{csv,csv.gz,jsonl,jsonl.gz,parquet}
+drop_uri: null
+
+# Parquet lake root; null → s3://exportbuyers-<env>-analytics/customs_us
+lake_uri: null
+
+# Weekly run (UTC). Vendors typically publish the prior ISO week by Monday.
+cron: "0 6 * * 2"
+
+# Licensed flat fee apportioned per delivered file, in micro-INR (cost metrics only).
+cost_micros_per_file: 0
+
+# Extra vendor column names per canonical field (tried before the built-in aliases).
+# Canonical fields: bol_id, arrival_date, consignee_name, consignee_addr, shipper_name,
+# shipper_country, hs_code, description, weight_kg, weight_unit, teu.
+columns: {}

@@ -1,0 +1,16 @@
+# M20 Web discovery — countries whose web-found rows may be SERVED (LLD M20 "Precision bar", HLD OQ9).
+#
+# Discovery runs and stores results for every country, tagged with the DISCOVERY_V model version.
+# M26 shows web-found rows only for countries listed here. A country is added (by PR) after the
+# evaluation set shows precision >= 0.8 for the listed discovery_version. [assumption]
+#
+# Entry shape:
+#   - country: GB                # ISO 3166-1 alpha-2
+#     discovery_version: 1       # DISCOVERY_V the evaluation was run against
+#     precision: 0.84            # measured precision on the evaluation set
+#     evaluated_at: 2026-10-01
+#
+# Empty at launch: no country has passed evaluation yet, so results are stored but not served.
+
+min_precision: 0.8
+released: []

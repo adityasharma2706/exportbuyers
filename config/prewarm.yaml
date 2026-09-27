@@ -1,0 +1,67 @@
+# M20 Web discovery — pre-warm plan (LLD M20 "Pre-warm"). [tunable]
+#
+# A weekly schedule (m20.prewarm) enqueues one m20.discover job per country × heading below, with
+# reason 'prewarm'. Jobs share the daily idempotency key disc:<heading>:<country>:<yyyy-mm-dd>
+# with on-demand requests, so a cell is never discovered twice on the same day.
+#
+# countries: launch countries (UK, DE, NL, UAE) plus US, as ISO 3166-1 alpha-2 codes.
+# headings:  the 50 most-searched HS headings (4 digits). [assumption] Seeded from India's top export
+#            headings until search logs exist; replace with the search-log top 50 by PR.
+# spread_hours: jobs are staggered evenly over this many hours after the schedule fires.
+
+cron: "0 1 * * 0"   # Sundays 01:00 UTC
+spread_hours: 24
+
+countries: [GB, DE, NL, AE, US]
+
+headings:
+  - "0306"  # crustaceans (shrimp, prawns)
+  - "1006"  # rice
+  - "0902"  # tea
+  - "0901"  # coffee
+  - "0904"  # pepper, dried capsicum
+  - "0910"  # ginger, turmeric and other spices
+  - "0909"  # cumin, coriander and other seeds of spices
+  - "0801"  # cashew nuts, coconuts
+  - "0804"  # mangoes, dates, figs
+  - "0703"  # onions, garlic
+  - "1701"  # cane sugar
+  - "1515"  # other vegetable fats and oils (castor oil)
+  - "2106"  # food preparations n.e.s.
+  - "1905"  # bread, biscuits, bakery
+  - "2008"  # fruit and nuts, otherwise prepared
+  - "3301"  # essential oils
+  - "3304"  # beauty and skin-care preparations
+  - "3305"  # hair preparations
+  - "3004"  # medicaments, packaged
+  - "2941"  # antibiotics
+  - "2933"  # heterocyclic compounds
+  - "3923"  # plastic packing articles
+  - "4011"  # new pneumatic tyres
+  - "4107"  # finished leather
+  - "4202"  # bags, cases, handbags
+  - "5205"  # cotton yarn
+  - "5208"  # woven cotton fabrics
+  - "5701"  # knotted carpets
+  - "5702"  # woven carpets and rugs
+  - "6109"  # T-shirts, knitted
+  - "6203"  # men's suits, trousers
+  - "6204"  # women's suits, dresses
+  - "6302"  # bed, table and kitchen linen
+  - "6403"  # leather footwear
+  - "6802"  # worked monumental stone (granite)
+  - "6907"  # ceramic tiles
+  - "7102"  # diamonds
+  - "7113"  # jewellery
+  - "7208"  # flat-rolled iron or steel
+  - "7304"  # seamless steel tubes and pipes
+  - "7318"  # screws, bolts, nuts
+  - "7326"  # other articles of iron or steel
+  - "8413"  # pumps for liquids
+  - "8481"  # taps, valves
+  - "8504"  # transformers, converters
+  - "8544"  # insulated wire and cable
+  - "8708"  # motor vehicle parts
+  - "9403"  # furniture
+  - "0402"  # milk and cream, concentrated
+  - "2523"  # cement

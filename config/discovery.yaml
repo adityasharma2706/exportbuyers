@@ -1,0 +1,90 @@
+# M20 Web discovery — query building and filtering. [tunable]
+
+# Search-engine languages per country. Every language gets all of its query templates.
+country_languages:
+  GB: [en]
+  US: [en]
+  DE: [de]
+  NL: [nl]
+  AE: [en, ar]
+default_languages: [en]
+
+country_names:
+  en: {GB: "UK", US: "USA", DE: "Germany", NL: "Netherlands", AE: "UAE"}
+  de: {DE: "Deutschland"}
+  nl: {NL: "Nederland"}
+  ar: {AE: "الإمارات"}
+
+# 3 templates per language. {term} = heading description or a synonym; {country} = country name.
+query_templates:
+  en:
+    - "{term} importer {country}"
+    - "{term} distributor {country}"
+    - "{term} wholesale buyer {country}"
+  de:
+    - "{term} Importeur {country}"
+    - "{term} Großhandel {country}"
+    - "{term} Großhändler Vertrieb {country}"
+  nl:
+    - "{term} importeur {country}"
+    - "{term} groothandel {country}"
+    - "{term} distributeur {country}"
+  ar:
+    - "مستورد {term} {country}"
+    - "موزع {term} {country}"
+    - "تاجر جملة {term} {country}"
+
+max_results_per_query: 30
+max_domains_per_run: 60
+max_internal_pages: 5
+max_page_chars_for_llm: 8000
+max_total_chars_for_llm: 24000
+
+# Per-heading synonyms per language (optional). The first entry per language is preferred for
+# non-English languages because the HS description itself is English.
+synonyms:
+  "0306":
+    en: ["frozen shrimp", "prawns"]
+    de: ["Garnelen", "Shrimps"]
+    nl: ["garnalen"]
+    ar: ["روبيان"]
+  "1006":
+    en: ["basmati rice", "rice"]
+    de: ["Basmatireis", "Reis"]
+    nl: ["basmati rijst", "rijst"]
+    ar: ["أرز بسمتي"]
+  "0902":
+    en: ["tea"]
+    de: ["Tee"]
+    nl: ["thee"]
+    ar: ["شاي"]
+  "0910":
+    en: ["spices", "turmeric", "ginger"]
+    de: ["Gewürze", "Kurkuma"]
+    nl: ["specerijen", "kurkuma"]
+    ar: ["توابل"]
+  "6302":
+    en: ["bed linen", "home textiles"]
+    de: ["Bettwäsche", "Heimtextilien"]
+    nl: ["beddengoed", "huishoudtextiel"]
+    ar: ["مفروشات"]
+  "7113":
+    en: ["jewellery", "silver jewelry"]
+    de: ["Schmuck"]
+    nl: ["sieraden"]
+    ar: ["مجوهرات"]
+
+# Search results on these registrable domains are never crawled: marketplaces, social sites,
+# news and directories. Subdomains match too.
+blocked_domains:
+  marketplaces: [amazon.com, amazon.co.uk, amazon.de, amazon.nl, amazon.ae, ebay.com, ebay.co.uk, ebay.de,
+                 alibaba.com, aliexpress.com, indiamart.com, tradeindia.com, made-in-china.com, etsy.com,
+                 bol.com, noon.com, walmart.com, globalsources.com, ec21.com, tradekey.com, exportersindia.com,
+                 go4worldbusiness.com, kompass.com, europages.com, europages.co.uk, europages.de, thomasnet.com,
+                 wlw.de, yellowpages.com, yell.com, gelbeseiten.de, dasoertliche.de, telefoonboek.nl,
+                 volza.com, importgenius.com, panjiva.com, zauba.com, seair.co.in, tradesparq.com]
+  social: [linkedin.com, facebook.com, instagram.com, x.com, twitter.com, youtube.com, tiktok.com,
+           pinterest.com, reddit.com, quora.com, wikipedia.org, medium.com]
+  news: [bbc.co.uk, bbc.com, theguardian.com, reuters.com, bloomberg.com, ft.com, nytimes.com, cnn.com,
+         spiegel.de, faz.net, handelsblatt.com, welt.de, nu.nl, telegraaf.nl, nos.nl, gulfnews.com,
+         khaleejtimes.com, thenationalnews.com, economictimes.indiatimes.com, forbes.com, businessinsider.com]
