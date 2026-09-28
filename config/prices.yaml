@@ -1,0 +1,29 @@
+# M28 price catalogue (LLD M28, IF-28c). Loaded once at boot by the TS app and served verbatim
+# (as JSON) at GET /api/prices; M28's quote() is authoritative, M04's CostBadge mirrors this
+# formula only for display.
+#
+# `version` changes whenever this file changes (bump it together with any number below); M28
+# stamps every ledger entry with the catalogue_version in force when it was written, and clients
+# cache /api/prices per version.
+version: "2026.1"
+effective_from: "2026-01-01"
+
+# Rupees per credit, used only to show a "≈ ₹" hint next to the credit amount. Optional: omit to
+# hide the rupee hint everywhere.
+inr_per_credit: 8
+
+# Credits per unit of each action, before any country multiplier.
+actions:
+  reveal: 1
+  reveal_bulk_each: 1
+  check_buyer: 1
+  export_row: 0
+
+# ISO-3166 alpha-2 -> multiplier. A country not listed here is priced at 1x. Multipliers apply to
+# `reveal` and `reveal_bulk_each` only in v1 (higher-cost markets may be repriced later).
+country_multipliers:
+  US: 1
+  GB: 1
+  DE: 1
+  AE: 1
+  SG: 1
