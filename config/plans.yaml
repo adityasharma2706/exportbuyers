@@ -1,0 +1,51 @@
+# M36 plan catalogue (LLD M36): Free, Starter, Growth, each with a monthly and an annual cycle
+# (annual priced at a discount). Prices are in whole INR rupees (REQ-054: plan allowances must be
+# visible; REQ-051: the Free plan is defined here). Loaded once at boot by plans.ts; GET /api/plans
+# serves this verbatim (converted to camelCase).
+#
+# razorpayPlanId is null for the Free plan (no Razorpay subscription is ever created for it) and
+# {monthly, annual} Razorpay Plan ids for paid plans, since Razorpay Subscriptions models each
+# billing period as its own Plan object.
+version: "2026.1"
+
+plans:
+  free:
+    priceInrMonthly: 0
+    priceInrAnnual: 0
+    razorpayPlanId: null
+    monthlyCredits: 10
+    entitlements:
+      searchResultCap: 25
+      exportRowsPerMonth: 0
+      bulkRevealMax: 0
+      checksPerMonth: 3
+      revealsIncludedPerMonth: 0
+
+  starter:
+    priceInrMonthly: 999
+    # ~2 months free versus paying monthly for a year (999 * 10).
+    priceInrAnnual: 9990
+    razorpayPlanId:
+      monthly: plan_starter_monthly
+      annual: plan_starter_annual
+    monthlyCredits: 150
+    entitlements:
+      searchResultCap: 500
+      exportRowsPerMonth: 500
+      bulkRevealMax: 10
+      checksPerMonth: 20
+      revealsIncludedPerMonth: 20
+
+  growth:
+    priceInrMonthly: 2999
+    priceInrAnnual: 29990
+    razorpayPlanId:
+      monthly: plan_growth_monthly
+      annual: plan_growth_annual
+    monthlyCredits: 600
+    entitlements:
+      searchResultCap: 5000
+      exportRowsPerMonth: 5000
+      bulkRevealMax: 50
+      checksPerMonth: 100
+      revealsIncludedPerMonth: 100

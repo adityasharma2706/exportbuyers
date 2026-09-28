@@ -1,0 +1,26 @@
+{
+  "hs_itc_hs": {
+    "term": "HS code / ITC-HS code",
+    "short": "HS (Harmonized System) is the international 6-digit code used to classify a product for customs worldwide. ITC-HS is India's own 8-digit version of it, and the 8th digit is what decides your product's Indian export policy."
+  },
+  "iec": {
+    "term": "IEC (Importer-Exporter Code)",
+    "short": "A 10-digit code issued by DGFT that every business needs before it can legally import or export from India. It is linked to your PAN and is a one-time registration."
+  },
+  "incoterms": {
+    "term": "Incoterms",
+    "short": "A standard set of trade terms (published by the ICC) that fix exactly where the seller's responsibility for cost, risk and delivery ends and the buyer's begins, for example EXW, FOB or CIF."
+  },
+  "fob": {
+    "term": "FOB (Free On Board)",
+    "short": "An Incoterm meaning you (the seller) pay for and arrange everything up to loading the goods onto the ship at the Indian port. The buyer takes over cost and risk from that point, including sea freight and insurance."
+  },
+  "cif": {
+    "term": "CIF (Cost, Insurance and Freight)",
+    "short": "An Incoterm meaning you (the seller) pay for the goods, the sea freight and the marine insurance all the way to the buyer's destination port. Risk still passes to the buyer once the goods are loaded on the ship."
+  },
+  "moq": {
+    "term": "MOQ (Minimum Order Quantity)",
+    "short": "The smallest quantity of a product you are willing to sell in one order. Stating your MOQ upfront saves time with buyers who cannot meet it."
+  }
+}

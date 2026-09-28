@@ -92,17 +92,22 @@ export async function insertEntryIfAbsent(
   companyId: string,
   now: Date,
 ): Promise<ShortlistEntry | undefined> {
+  // Built as a variable (not an inline literal) so TS's excess-property check does not trip on
+  // account_id/workspace_id: ScopedDb.insertInto()'s row parameter type omits both (they are
+  // normally auto-injected), but this table carries workspace_id as an ordinary column too
+  // (see the schema deviation note above) and must supply it itself.
+  const newRow = {
+    id: newId<'shortlist_entry'>(),
+    account_id: accountId,
+    workspace_id: workspaceId,
+    company_id: companyId,
+    status: DEFAULT_SHORTLIST_STATUS,
+    next_action_at: null,
+    created_at: now,
+    updated_at: now,
+  };
   const r = (await db
-    .insertInto('serving.shortlist_entry', {
-      id: newId<'shortlist_entry'>(),
-      account_id: accountId,
-      workspace_id: workspaceId,
-      company_id: companyId,
-      status: DEFAULT_SHORTLIST_STATUS,
-      next_action_at: null,
-      created_at: now,
-      updated_at: now,
-    })
+    .insertInto('serving.shortlist_entry', newRow)
     .onConflict((oc: { columns(c: string[]): { doNothing(): unknown } }) => oc.columns(['workspace_id', 'company_id']).doNothing())
     .returningAll()
     .executeTakeFirst()) as Record<string, unknown> | undefined;
@@ -147,7 +152,9 @@ export async function insertStatusHistory(
   db: ScopedDb,
   row: { entryId: string; accountId: string; workspaceId: string; from: ShortlistStatus | null; to: ShortlistStatus; source: StatusSource; at: Date },
 ): Promise<void> {
-  await db.insertInto('serving.status_history', {
+  // See insertEntryIfAbsent's comment: built as a variable so the account_id/workspace_id
+  // columns (not part of insertInto()'s declared row type) do not trip TS's excess-property check.
+  const newRow = {
     id: newId<'status_history'>(),
     account_id: row.accountId,
     workspace_id: row.workspaceId,
@@ -156,7 +163,10 @@ export async function insertStatusHistory(
     to_status: row.to,
     source: row.source,
     at: row.at,
-  });
+  };
+  // Kysely's InsertQueryBuilder is Compilable, not PromiseLike: without .execute() this would
+  // compile (insertInto()'s declared return type is `any`) but never actually run the insert.
+  await db.insertInto('serving.status_history', newRow).execute();
 }
 
 /** Notes count per entry id, for entries whose id is in `entryIds`. */
@@ -177,16 +187,19 @@ export async function insertNote(
   row: { accountId: string; workspaceId: string; entryId: string; body: string },
   now: Date,
 ): Promise<Note> {
+  // See insertEntryIfAbsent's comment: built as a variable so the account_id/workspace_id
+  // columns (not part of insertInto()'s declared row type) do not trip TS's excess-property check.
+  const newRow = {
+    id: newId<'note'>(),
+    account_id: row.accountId,
+    workspace_id: row.workspaceId,
+    entry_id: row.entryId,
+    body: row.body,
+    created_at: now,
+    updated_at: now,
+  };
   const r = (await db
-    .insertInto('serving.note', {
-      id: newId<'note'>(),
-      account_id: row.accountId,
-      workspace_id: row.workspaceId,
-      entry_id: row.entryId,
-      body: row.body,
-      created_at: now,
-      updated_at: now,
-    })
+    .insertInto('serving.note', newRow)
     .returningAll()
     .executeTakeFirstOrThrow()) as Record<string, unknown>;
   return mapNote(r);
