@@ -26,6 +26,12 @@ function toDateOrNull(v: unknown): Date | null {
   return v === null || v === undefined ? null : toDate(v);
 }
 
+function toRetained(v: unknown): string[] | null {
+  if (v === null || v === undefined) return null;
+  const parsed: unknown = typeof v === 'string' ? JSON.parse(v) : v;
+  return Array.isArray(parsed) ? parsed.map((x) => String(x)) : null;
+}
+
 function mapRow(r: Record<string, unknown>): RightsRequest {
   return {
     id: String(r.id) as Id<'rights_request'>,
@@ -33,6 +39,7 @@ function mapRow(r: Record<string, unknown>): RightsRequest {
     kind: r.kind as RightsRequestKind,
     state: r.state as RightsRequestState,
     zipS3Key: (r.zip_s3_key as string | null) ?? null,
+    retained: toRetained(r.retained),
     createdAt: toDate(r.created_at),
     completedAt: toDateOrNull(r.completed_at),
   };
@@ -50,6 +57,20 @@ export async function insertRequest(ctx: ActorContext, kind: RightsRequestKind, 
     returning *
   `);
   return mapRow(rows[0]!);
+}
+
+/** Same as insertRequest, but for a caller already inside a transaction with no signed-in
+ * ActorContext — the EV-11 `consent.withdrawn` subscriber (events.ts), which only has an
+ * accountId and the outbox transaction (`meta.tx`). Writes directly against that tx so the new
+ * request row commits atomically with the event being marked handled. */
+export async function insertRequestTx(tx: Db, accountId: string, kind: RightsRequestKind, now: Date): Promise<RightsRequest> {
+  const id = newId<'rights_request'>();
+  const result = await sql<Record<string, unknown>>`
+    insert into serving.rights_request (id, account_id, kind, state, zip_s3_key, created_at, completed_at)
+    values (${id}, ${accountId}, ${kind}, 'queued', null, ${now}, null)
+    returning *
+  `.execute(tx);
+  return mapRow(result.rows[0]!);
 }
 
 export async function findRequest(ctx: ActorContext, id: string): Promise<RightsRequest | undefined> {
@@ -95,4 +116,14 @@ export async function markRequestDone(id: string, zipS3Key: string | null, now: 
     .set({ state: 'done', zip_s3_key: zipS3Key, completed_at: now })
     .where('id', '=', id)
     .execute();
+}
+
+/** Erase-only completion (LLD Rules step 3): also persists the retention-exception notes each
+ * contributor returned, so `GET /api/me/delete/:id` (IF-38b) can surface them. */
+export async function markEraseRequestDone(id: string, retained: string[], now: Date): Promise<void> {
+  await sql`
+    update serving.rights_request
+    set state = 'done', retained = ${JSON.stringify(retained)}::jsonb, completed_at = ${now}
+    where id = ${id}
+  `.execute(sys('mark erase request done'));
 }

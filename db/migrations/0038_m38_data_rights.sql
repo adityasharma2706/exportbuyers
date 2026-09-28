@@ -13,6 +13,10 @@ create table serving.rights_request (
   kind          text not null check (kind in ('export', 'erase')),
   state         text not null check (state in ('queued', 'running', 'done', 'failed')) default 'queued',
   zip_s3_key    text null,
+  -- LLD Rules step 3 "retention exceptions" (M28/M36/M06), collected as each erase contributor
+  -- runs (contributors.ts) and surfaced back on GET /api/me/delete/:id (IF-38b) once the erase
+  -- has run at least one pass. Null until then; a json array of human-readable notes afterwards.
+  retained      jsonb null,
   created_at    timestamptz not null default now(),
   completed_at  timestamptz null
 );

@@ -15,7 +15,7 @@ import { registerHandler, registerRateClass, type PayloadSchema } from '../m02_q
 import { cancelSubscriptionIfAny } from './contributors.js';
 import { ERASE_JOB_TYPE, ERASE_MAX_ATTEMPTS, RIGHTS_RATE_CLASS } from './config.js';
 import { listContributorsOrdered } from './registry.js';
-import { markRequestDone, setRequestState } from './repo.js';
+import { markEraseRequestDone, setRequestState } from './repo.js';
 
 export interface EraseJobPayload {
   v: 1;
@@ -73,7 +73,7 @@ export async function runErase(payload: EraseJobPayload): Promise<void> {
 
       // Step 4: account.status='deleted'.
       await setAccountStatus(accountId, 'deleted');
-      await markRequestDone(requestId, null, new Date());
+      await markEraseRequestDone(requestId, retained, new Date());
       log.info({ accountId, requestId, retained }, 'm38: erase complete');
     },
     { accountId, requestId },

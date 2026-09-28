@@ -1,6 +1,6 @@
 {
-  "hash": "2ab11a381ef59ef2e54c2224c9230fad942ab46348a77089a08730d866adfe36",
-  "installedAt": "2026-09-28T14:36:03.167Z",
+  "hash": "15a8619e5e29afd85b23d857c831246f3d64487ca7eed701a6a4ba5ea179d02c",
+  "installedAt": "2026-09-28T15:23:56.247Z",
   "command": "npm install --ignore-scripts",
   "packages": [
     "@aws-sdk/client-s3@^3.600.0",
@@ -25,6 +25,7 @@
     "react-dom@^18.3.1",
     "tailwindcss@^4.3.3",
     "zod@^3.23.0",
+    "@playwright/test@^1.47.0",
     "@types/archiver@^6.0.2",
     "@types/node@^20.14.0",
     "@types/pg@^8.11.0",

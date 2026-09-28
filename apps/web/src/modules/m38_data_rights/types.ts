@@ -17,6 +17,7 @@ export interface RightsRequestRow {
   kind: RightsRequestKind;
   state: RightsRequestState;
   zip_s3_key: string | null;
+  retained: unknown;
   created_at: Date;
   completed_at: Date | null;
 }
@@ -27,6 +28,9 @@ export interface RightsRequest {
   kind: RightsRequestKind;
   state: RightsRequestState;
   zipS3Key: string | null;
+  /** LLD Rules step 3: the erase job's retention-exception notes (M28/M36/M06), once at least
+   * one erase pass has run. Null before then and always null for `export` requests. */
+  retained: string[] | null;
   createdAt: Date;
   completedAt: Date | null;
 }

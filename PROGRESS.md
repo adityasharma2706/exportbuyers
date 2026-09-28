@@ -3,7 +3,7 @@
 Written by the agent-pipeline orchestrator (spec-implementer stage), one entry per
 module attempt. Generated from `pipeline-progress.json` — edit that, not this.
 
-Last updated: 2026-09-28T14:36:10.720Z
+Last updated: 2026-09-28T16:21:29.603Z
 Plan (docs/implementer.md) hash: 424eed81ea20d85d74663174ecf8fa67
 Idea (docs/idea.md) hash: 4c4e1d74317e25ed1ae767464801f975
 
@@ -781,4 +781,112 @@ Idea (docs/idea.md) hash: 4c4e1d74317e25ed1ae767464801f975
   - [pre-existing, owner M33] apps/web/src/modules/m33_pipeline/service.ts(17,25): error TS2305: Module '"../m01_platform/index.js"' has no exported member 'requireMember'.
   - [pre-existing, owner M33] apps/web/src/modules/m33_pipeline/validate.ts(63,81): error TS2531: Object is possibly 'null'.
 - Warning: agent did not emit a PIPELINE-PROGRESS block, so its REQ claims and deviation notes are unknown
+
+## M38 User data rights — success
+
+- Ran: 2026-09-28T14:56:41.773Z to 2026-09-28T15:04:29.089Z
+- Cost: $2.5526 over 114 turns
+- Files written: apps/web/src/modules/m38_data_rights/contributors.ts, apps/web/src/modules/m38_data_rights/eraseJob.ts, apps/web/src/modules/m38_data_rights/events.ts, apps/web/src/modules/m38_data_rights/index.ts, apps/web/src/modules/m38_data_rights/repo.ts, apps/web/src/modules/m38_data_rights/routes.ts, apps/web/src/modules/m38_data_rights/service.ts, apps/web/src/modules/m38_data_rights/types.ts, db/migrations/0038_m38_data_rights.sql
+- REQs claimed: REQ-061
+- Inherited 2 pre-existing typecheck error(s) — NOT this module's fault, not counted against it: M33 x2
+  - [pre-existing, owner M33] apps/web/src/modules/m33_pipeline/service.ts(17,25): error TS2305: Module '"../m01_platform/index.js"' has no exported member 'requireMember'.
+  - [pre-existing, owner M33] apps/web/src/modules/m33_pipeline/validate.ts(63,81): error TS2531: Object is possibly 'null'.
+- Deviations reported: Fixed a bug carried over from the previous attempt: contributors.ts imported M33/M34 as `import type {}` for their side effects (registerTenantTable), but a type-only import is elided at compile time and would run neither module's registration — changed to plain side-effect imports. Added a `retained jsonb` column to serving.rights_request (not in the LLD's literal schema list) and a markEraseRequestDone()/insertRequestTx() path to actually persist the erase job's retention-exception notes, since the previous attempt's types.ts already declared DeleteAccountStatusDto.retained with no backing storage for it. M38's own POST /api/me/consent/withdraw duplicates M06's core_service confirm-gate inline (mirroring M06's /api/consent/withdraw route) because M06 does not export that gate as a separate reusable function. registry.ts's pre-existing deviation note stands: CONTRIBUTOR_ORDER reserves slots for M29/M30/M32/M35/M41 contributors, which are not among M38's declared dependencies, so an account's reveal/report/check/export rows are not exported or erased by this module.
+
+## M39 Launch hardening — failure
+
+- Ran: 2026-09-28T15:04:29.099Z to 2026-09-28T15:24:04.157Z
+- Cost: $7.0392 over 169 turns
+- Files written: apps/web/e2e/m39-launch.spec.ts, apps/web/loadtest/m39-search.k6.js, apps/web/package.json, apps/web/playwright.config.ts, apps/web/src/modules/m39_launch/activation.ts, apps/web/src/modules/m39_launch/antiScrape.test.ts, apps/web/src/modules/m39_launch/antiScrape.ts, apps/web/src/modules/m39_launch/config.ts, apps/web/src/modules/m39_launch/costPerCredit.ts, apps/web/src/modules/m39_launch/degradedSearch.ts, apps/web/src/modules/m39_launch/exportCanaryWatch.ts, apps/web/src/modules/m39_launch/index.ts, apps/web/src/modules/m39_launch/jobs.ts, apps/web/src/modules/m39_launch/labels.ts, apps/web/src/modules/m39_launch/routes.ts, apps/web/src/modules/m39_launch/wordingAudit.test.ts, apps/web/src/modules/m39_launch/wordingAudit.ts, db/migrations/0039_m39_launch_hardening.sql, package.json
+- REQs claimed: REQ-057, REQ-028, REQ-066, REQ-004, REQ-051
+- Failed because: tsc --noEmit reported 1 error(s):
+      apps/web/src/modules/m39_launch/exportCanaryWatch.ts(15,10): error TS2305: Module '"../m35_export/index.js"' has no exported member 'CANARY_EMAIL_DOMAIN'.
+- Failure kind: typecheck (fed back into the next attempt's prompt)
+- Inherited 2 pre-existing typecheck error(s) — NOT this module's fault, not counted against it: M33 x2
+  - [pre-existing, owner M33] apps/web/src/modules/m33_pipeline/service.ts(17,25): error TS2305: Module '"../m01_platform/index.js"' has no exported member 'requireMember'.
+  - [pre-existing, owner M33] apps/web/src/modules/m33_pipeline/validate.ts(63,81): error TS2531: Object is possibly 'null'.
+- Deviations reported: M20's EV-05 discovery.completed was never registered in M02's EventRegistry by any earlier module, so degradedSearch.ts adds that module augmentation itself; M26's own /api/buyers/search route has no account-level guard hook, so the anti-scrape/degraded-search controls are shipped as a hardened alternative route registration (registerHardenedBuyerSearchRoutes) rather than editing M26's routes.ts, pending a composition root that doesn't exist yet in this workspace; M33's addToShortlist never emits EV-08 on initial "save" (only on later status transitions), so analytics.activation's saved_count is kept current by a periodic recompute over serving.shortlist_entry rather than solely "fed by EV-08" as literally written, while EV-08 (source=auto_draft) and EV-09 both still feed the drafted flag as specified; recordCost's creditRef is not populated by any vendor call site built so far, so analytics.v_cost_per_credit and its report are implemented exactly to spec but will show no rows until an earlier module starts passing creditRef; the wording audit's "templates" source is implemented as a fixed, hand-maintained list of each module's own *_MESSAGES_EN label objects (there is no literal templates directory in this repo and no shell to auto-discover new labels.ts files); Playwright Flows 2 and 4 sign in for real via the OTP endpoints but can only obtain the OTP code through an env var (PLAYWRIGHT_TEST_OTP_CODE) a CI harness must set from the console email/SMS provider's log output, and skip with an explicit reason when it is absent rather than faking a pass; DB-backed pieces (activation upsert, cost-per-credit report, export canary listing) have no additional automated tests beyond the anti-scrape and wording-audit suites, given budget constraints on this call.
+
+## M39 Launch hardening — success
+
+- Ran: 2026-09-28T15:24:04.166Z to 2026-09-28T15:24:27.509Z
+- Cost: $0.0685 over 5 turns
+- Files written: apps/web/src/modules/m39_launch/exportCanaryWatch.ts
+- REQs claimed: REQ-057, REQ-028, REQ-066, REQ-004, REQ-051
+- Inherited 2 pre-existing typecheck error(s) — NOT this module's fault, not counted against it: M33 x2
+  - [pre-existing, owner M33] apps/web/src/modules/m33_pipeline/service.ts(17,25): error TS2305: Module '"../m01_platform/index.js"' has no exported member 'requireMember'.
+  - [pre-existing, owner M33] apps/web/src/modules/m33_pipeline/validate.ts(63,81): error TS2531: Object is possibly 'null'.
+- Deviations reported: exportCanaryWatch.ts imports CANARY_EMAIL_DOMAIN from m35_export/config.js instead of m35_export/index.js, because M35's public index.ts does not re-export that constant and M35 is not this module's file to modify.
+
+## M40 HS version change re-confirmation — success
+
+- Ran: 2026-09-28T15:24:27.517Z to 2026-09-28T15:35:10.258Z
+- Cost: $2.6291 over 73 turns
+- Files written: apps/web/src/modules/m40_hs_reconfirm/components/ReconfirmBanner.ts, apps/web/src/modules/m40_hs_reconfirm/config.ts, apps/web/src/modules/m40_hs_reconfirm/decide.ts, apps/web/src/modules/m40_hs_reconfirm/index.ts, apps/web/src/modules/m40_hs_reconfirm/jobs.ts, apps/web/src/modules/m40_hs_reconfirm/labels.ts, apps/web/src/modules/m40_hs_reconfirm/reconfirm.test.ts, apps/web/src/modules/m40_hs_reconfirm/repo.ts, apps/web/src/modules/m40_hs_reconfirm/routes.ts, apps/web/src/modules/m40_hs_reconfirm/service.ts, apps/web/src/modules/m40_hs_reconfirm/types.ts
+- REQs claimed: REQ-009
+- Inherited 2 pre-existing typecheck error(s) — NOT this module's fault, not counted against it: M33 x2
+  - [pre-existing, owner M33] apps/web/src/modules/m33_pipeline/service.ts(17,25): error TS2305: Module '"../m01_platform/index.js"' has no exported member 'requireMember'.
+  - [pre-existing, owner M33] apps/web/src/modules/m33_pipeline/validate.ts(63,81): error TS2531: Object is possibly 'null'.
+- Deviations reported: EV-12 `nomenclature.version_loaded` is emitted by the Python knowledge plane and M12's TS side never registers it in M02's `EventRegistry`; M40 is its first TS subscriber, so the `declare module` augmentation is added in jobs.ts (matching M39's identical precedent for EV-05 `discovery.completed`) instead of retrofitting M12.
+
+## M41 Reminders, notifications and dashboard — failure
+
+- Ran: 2026-09-28T15:35:10.266Z to 2026-09-28T15:51:53.234Z
+- Cost: $4.8752 over 119 turns
+- Files written: apps/web/src/modules/m41_notify/config.ts, apps/web/src/modules/m41_notify/index.ts, apps/web/src/modules/m41_notify/jobs.ts, apps/web/src/modules/m41_notify/labels.ts, apps/web/src/modules/m41_notify/repo.ts, apps/web/src/modules/m41_notify/routes.ts, apps/web/src/modules/m41_notify/service.ts, apps/web/src/modules/m41_notify/systemCtx.ts, apps/web/src/modules/m41_notify/types.ts, apps/web/src/modules/m41_notify/validate.ts, db/migrations/0041_m41_notify.sql
+- REQs claimed: REQ-047, REQ-049
+- Failed because: tsc --noEmit reported 1 error(s):
+      apps/web/src/modules/m41_notify/service.ts(26,25): error TS2305: Module '"../m01_platform/index.js"' has no exported member 'requireMember'.
+- Failure kind: typecheck (fed back into the next attempt's prompt)
+- Inherited 2 pre-existing typecheck error(s) — NOT this module's fault, not counted against it: M33 x2
+  - [pre-existing, owner M33] apps/web/src/modules/m33_pipeline/service.ts(17,25): error TS2305: Module '"../m01_platform/index.js"' has no exported member 'requireMember'.
+  - [pre-existing, owner M33] apps/web/src/modules/m33_pipeline/validate.ts(63,81): error TS2531: Object is possibly 'null'.
+- Deviations reported: notify()'s email step imports M05 (sendTransactionalEmail), which is not in implementer.md's Deps list for M41 (M02/M10/M28/M33 only) — required by the LLD's own text ("via M05's sendTransactionalEmail"); M05 already exists in the workspace.
+
+## M41 Reminders, notifications and dashboard — success
+
+- Ran: 2026-09-28T15:51:53.239Z to 2026-09-28T15:52:35.995Z
+- Cost: $0.1068 over 9 turns
+- Files written: apps/web/src/modules/m41_notify/service.ts
+- REQs claimed: (none)
+- Inherited 2 pre-existing typecheck error(s) — NOT this module's fault, not counted against it: M33 x2
+  - [pre-existing, owner M33] apps/web/src/modules/m33_pipeline/service.ts(17,25): error TS2305: Module '"../m01_platform/index.js"' has no exported member 'requireMember'.
+  - [pre-existing, owner M33] apps/web/src/modules/m33_pipeline/validate.ts(63,81): error TS2531: Object is possibly 'null'.
+- Deviations reported: Repair of previous attempt only — fixed the import of requireMember to come from m05_identity (its actual home) instead of m01_platform, which does not export it. No other changes made.
+
+## M42 Follow-up drafts — success
+
+- Ran: 2026-09-28T15:52:36.001Z to 2026-09-28T16:06:46.884Z
+- Cost: $2.9534 over 81 turns
+- Files written: apps/web/src/modules/m42_followup/components/FollowUpComposer.ts, apps/web/src/modules/m42_followup/config.ts, apps/web/src/modules/m42_followup/events.ts, apps/web/src/modules/m42_followup/index.ts, apps/web/src/modules/m42_followup/labels.ts, apps/web/src/modules/m42_followup/prompt.ts, apps/web/src/modules/m42_followup/repo.ts, apps/web/src/modules/m42_followup/routes.ts, apps/web/src/modules/m42_followup/service.ts, apps/web/src/modules/m42_followup/types.ts, apps/web/src/modules/m42_followup/validate.ts
+- REQs claimed: REQ-041
+- Inherited 2 pre-existing typecheck error(s) — NOT this module's fault, not counted against it: M33 x2
+  - [pre-existing, owner M33] apps/web/src/modules/m33_pipeline/service.ts(17,25): error TS2305: Module '"../m01_platform/index.js"' has no exported member 'requireMember'.
+  - [pre-existing, owner M33] apps/web/src/modules/m33_pipeline/validate.ts(63,81): error TS2531: Object is possibly 'null'.
+- Deviations reported: Declared deps (implementer.md) are only M34/M41; this module also imports M02 (to subscribe to EV-09 draft.left_product) and M33 (for that event's type/payload/schema, plus SHORTLIST_STATUSES/ShortlistStatus for the reply-status gate) — the same kind of undeclared-but-necessary dependency M34's own repo.ts already took on M33's serving.shortlist_entry table, documented there and re-documented here.
+
+## M43 Money-back requests — success
+
+- Ran: 2026-09-28T16:06:46.889Z to 2026-09-28T16:16:39.292Z
+- Cost: $3.3192 over 101 turns
+- Files written: apps/web/src/modules/m43_moneyback/config.ts, apps/web/src/modules/m43_moneyback/index.ts, apps/web/src/modules/m43_moneyback/jobs.ts, apps/web/src/modules/m43_moneyback/notify.ts, apps/web/src/modules/m43_moneyback/razorpayRefund.ts, apps/web/src/modules/m43_moneyback/repo.ts, apps/web/src/modules/m43_moneyback/reviewType.ts, apps/web/src/modules/m43_moneyback/routes.ts, apps/web/src/modules/m43_moneyback/service.ts, apps/web/src/modules/m43_moneyback/systemCtx.ts, apps/web/src/modules/m43_moneyback/types.ts
+- REQs claimed: REQ-055
+- Inherited 2 pre-existing typecheck error(s) — NOT this module's fault, not counted against it: M33 x2
+  - [pre-existing, owner M33] apps/web/src/modules/m33_pipeline/service.ts(17,25): error TS2305: Module '"../m01_platform/index.js"' has no exported member 'requireMember'.
+  - [pre-existing, owner M33] apps/web/src/modules/m33_pipeline/validate.ts(63,81): error TS2531: Object is possibly 'null'.
+- Deviations reported: M43 owns its `windowDays` (money_back_days) tunable itself rather than reading it from M37, since M37's IF-37a exposes no API for a module to read a numeric tunable (only Markdown content pages and a price-token resolver over M28's price catalogue) — keeping the tunable in sync with the published /refund-policy page's "7 days" text is an operational discipline, not something enforceable at build time here.
+
+## M44 Outcome events — failure
+
+- Ran: 2026-09-28T16:16:39.297Z to 2026-09-28T16:21:29.603Z
+- Cost: $1.4418 over 75 turns
+- Files written: apps/web/src/modules/m44_outcome_events/events.test.ts, apps/web/src/modules/m44_outcome_events/events.ts, apps/web/src/modules/m44_outcome_events/index.ts, apps/web/src/modules/m44_outcome_events/repo.ts, apps/web/src/modules/m44_outcome_events/systemCtx.ts, apps/web/src/modules/m44_outcome_events/types.ts, db/migrations/0044_m44_outcome_events.sql
+- REQs claimed: REQ-050
+- Failed because: tsc --noEmit reported 1 error(s):
+      apps/web/src/modules/m44_outcome_events/events.ts(37,3): error TS2322: Type '{ id: Id<"outcome_event">; accountId: string; companyId: string; hsHeading: string | null; country: string; fromStatus: "to_contact" | "contacted" | "replied" | "in_discussion" | "sample_sent" | "order_won" | "not_interested" | null; toStatus: "to_contact" | ... 5 more ... | "not_interested"; at: Date; }[]' is not assignable to type 'OutcomeEventRow[]'.
+- Failure kind: typecheck (fed back into the next attempt's prompt)
+- Inherited 2 pre-existing typecheck error(s) — NOT this module's fault, not counted against it: M33 x2
+  - [pre-existing, owner M33] apps/web/src/modules/m33_pipeline/service.ts(17,25): error TS2305: Module '"../m01_platform/index.js"' has no exported member 'requireMember'.
+  - [pre-existing, owner M33] apps/web/src/modules/m33_pipeline/validate.ts(63,81): error TS2531: Object is possibly 'null'.
+- Deviations reported: LLD's outcome_event schema gives one hs_heading column but a company's profile_doc can carry zero or several hs_headings (search_doc, the LLD's own source of HS scope, is keyed (company_id, hs_heading)); the handler writes one row per heading the company currently carries (hs_heading nullable, one null-heading row when a company has none yet) rather than picking an arbitrary single value or dropping the event.
 

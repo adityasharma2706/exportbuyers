@@ -28,9 +28,11 @@ import { eraseConsent, exportConsent } from '../m06_consent/index.js';
 import { eraseIdentity, exportIdentity } from '../m05_identity/index.js';
 import { eraseTenancy, exportTenancy } from '../m07_tenancy/index.js';
 // Side-effect only imports: guarantee M33's and M34's tenant tables are registered before the
-// raw scoped() queries below run (see the module doc comment).
-import type {} from '../m33_pipeline/index.js';
-import type {} from '../m34_draft/index.js';
+// raw scoped() queries below run (see the module doc comment). Deliberately NOT `import type` —
+// a type-only import is elided at compile time and would run neither module's top-level
+// registerTenantTable() call, defeating the whole point of importing them here.
+import '../m33_pipeline/index.js';
+import '../m34_draft/index.js';
 import { CONTRIBUTOR_ORDER, registerContributor } from './registry.js';
 import { systemCtxFor } from './systemCtx.js';
 import type { ContributorEraseResult, ContributorExportResult } from './types.js';
