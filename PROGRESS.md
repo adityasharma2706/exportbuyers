@@ -3,7 +3,7 @@
 Written by the agent-pipeline orchestrator (spec-implementer stage), one entry per
 module attempt. Generated from `pipeline-progress.json` — edit that, not this.
 
-Last updated: 2026-09-28T10:55:57.390Z
+Last updated: 2026-09-28T13:08:58.352Z
 Plan (docs/implementer.md) hash: 424eed81ea20d85d74663174ecf8fa67
 Idea (docs/idea.md) hash: 4c4e1d74317e25ed1ae767464801f975
 
@@ -627,6 +627,64 @@ Idea (docs/idea.md) hash: 4c4e1d74317e25ed1ae767464801f975
 - Files written: db/migrations/0029_m29_contact_reveal.sql
 - REQs claimed: (none)
 - Failed because: the SDK call did not succeed: Claude Code returned an error result: Reached maximum budget ($1.6953612000000007)
+- Failure kind: sdk (fed back into the next attempt's prompt)
+- Warning: agent did not emit a PIPELINE-PROGRESS block, so its REQ claims and deviation notes are unknown
+
+## M29 Contact reveal — failure
+
+- Ran: 2026-09-28T11:51:17.552Z to 2026-09-28T12:10:04.263Z
+- Cost: $5.2699 over 115 turns
+- Files written: apps/web/src/modules/m29_reveal/concurrency.ts, apps/web/src/modules/m29_reveal/config.ts, apps/web/src/modules/m29_reveal/contactValues.ts, apps/web/src/modules/m29_reveal/crypto.ts, apps/web/src/modules/m29_reveal/index.ts, apps/web/src/modules/m29_reveal/jobs.ts, apps/web/src/modules/m29_reveal/repo.ts, apps/web/src/modules/m29_reveal/reveal.test.ts, apps/web/src/modules/m29_reveal/reverify.ts, apps/web/src/modules/m29_reveal/routes.ts, apps/web/src/modules/m29_reveal/service.ts, apps/web/src/modules/m29_reveal/slots.ts, apps/web/src/modules/m29_reveal/types.ts
+- REQs claimed: REQ-032, REQ-033, REQ-034, REQ-029, REQ-054
+- Failed because: tsc --noEmit reported 76 error(s):
+      apps/web/src/modules/m29_reveal/crypto.ts(3,95): error TS1002: Unterminated string literal.
+      apps/web/src/modules/m29_reveal/crypto.ts(4,49): error TS1005: ';' expected.
+      apps/web/src/modules/m29_reveal/crypto.ts(4,55): error TS1228: A type predicate is only allowed in return type position for functions and methods.
+      apps/web/src/modules/m29_reveal/crypto.ts(4,58): error TS1128: Declaration or statement expected.
+      apps/web/src/modules/m29_reveal/crypto.ts(4,66): error TS1434: Unexpected keyword or identifier.
+      ...and 71 more
+- Failure kind: typecheck (fed back into the next attempt's prompt)
+- Deviations reported: contact-value encryption is AES-256-GCM under a dedicated secret (M29_ENC_KEY), not a real KMS envelope, per the LLD's own "a KMS data key" schema comment; a separate pg.Pool under secret M29_REVEAL_DATABASE_URL (falls back to DATABASE_URL) reads knowledge.v_contact_value as the app_reveal role, since M01's db.ts only manages one application role's pool; reverify RPC failures (network/timeout/non-200/malformed body) degrade every requested assertion to 'unknown' rather than failing the reveal closed, extending the RPC's own "pending while it keeps checking -> unknown" contract to outright transport failures (unlike M17's deliberately fail-closed sanctions client); bulk reveal issues one aggregate commit() at the end (successCount x unitCredits) instead of a literal "per-company commit of its share", because M28's already-built ledger resolves a hold with exactly one terminal commit/release operation, not N partial commits -- the "unused remainder released" financial outcome is preserved via that single commit's own remainder-to-available behaviour; the reveal-row insert and the M28 ledger commit cannot literally share one DB transaction (commit() always opens its own top-level transaction), so commit runs first and the reveal/reveal_contact insert second, relying on M28's commit() being idempotent by holdId for safe client retries, with a refund-and-answer-the-winner fallback if a concurrent request wins the (account,company) done-reveal race; no UI component or labels file was added for M29, since the LLD's M29 entry defines only server-side IF-29a/b and (unlike M27's "API + UI" title) does not list a UI artifact as M29-owned.
+
+## M29 Contact reveal — success
+
+- Ran: 2026-09-28T12:10:04.268Z to 2026-09-28T12:10:28.101Z
+- Cost: $0.0562 over 5 turns
+- Files written: apps/web/src/modules/m29_reveal/crypto.ts
+- REQs claimed: REQ-032, REQ-033, REQ-034, REQ-029, REQ-054
+- Deviations reported: none (this call only repaired a syntax defect in crypto.ts — a nested /* */ inside the file's opening JSDoc comment prematurely closed it, corrupting everything after; all deviation notes carried over from the prior attempt remain as previously recorded, e.g. crypto.ts's own noted KMS-envelope deviation)
+
+## M30 Reports and automatic invalid-contact refunds — success
+
+- Ran: 2026-09-28T12:10:28.105Z to 2026-09-28T12:30:39.295Z
+- Cost: $6.2288 over 123 turns
+- Files written: apps/web/src/modules/m30_reports/config.ts, apps/web/src/modules/m30_reports/events.ts, apps/web/src/modules/m30_reports/index.ts, apps/web/src/modules/m30_reports/jobs.ts, apps/web/src/modules/m30_reports/refunds.ts, apps/web/src/modules/m30_reports/repo.ts, apps/web/src/modules/m30_reports/reviewTypes.ts, apps/web/src/modules/m30_reports/routes.ts, apps/web/src/modules/m30_reports/service.ts, apps/web/src/modules/m30_reports/systemCtx.ts, apps/web/src/modules/m30_reports/types.ts, db/migrations/0030_m30_reports.sql
+- REQs claimed: REQ-025, REQ-034, REQ-064
+- Deviations reported: M11's IF-11a `file()` has no way to update an existing (dedupe-hit) item's payload, so the `report.content` "counter in the payload" (LLD M30 Rules) is kept live via a direct, narrowly-scoped raw SQL UPDATE of `serving.review_item.payload` (jsonb merge on the `count` key only) rather than through an M11 API, documented in repo.ts's header.; M29's IF-29a/b exposes no "find the reveal behind this (account, assertion)" lookup and `revealedContacts()` does not surface `commit_entry_id`, so M30 reads `serving.reveal`/`serving.reveal_contact` directly (read-only) to correlate a report with its reveal and to compute the refund's `refersTo`/per-contact share; similarly reads `ledger.entry` directly (read-only) since M28's IF-28a has no "get entry by id".; `refund()` (M28) always opens its own ledger transaction, so it is not atomically joined with the report-state update in the same handler tx; documented in refunds.ts as safe because `refund()` is idempotent on its key.; `apply` on the `report.content` review type derives which IF-09b command to send (`report_not_buyer` vs `report_closed`) from the report's own stored `reason` rather than requiring extra admin-supplied outcome data, since the LLD's outcome list gives no such data shape.; `CreateReportResponseDto.refundStatus` is always present (`'pending'`/`'not_applicable'`) rather than optional as the LLD's `refundStatus?` suggests, for a simpler, always-informative response.; implementer.md's one-line gloss "Confirmed invalid contacts lead to global exclusion" is not implemented as a suppression/global-exclusion call: the detailed LLD M30 section and M25's HLD OQ2 decision ("invalid means a negative assertion only, with no suppression") are followed instead, since they are the more specific and authoritative source.
+
+## M31 Public removal and correction page — success
+
+- Ran: 2026-09-28T12:30:39.299Z to 2026-09-28T12:47:59.955Z
+- Cost: $5.9328 over 133 turns
+- Files written: apps/web/src/app/[locale]/removal/page.ts, apps/web/src/app/[locale]/removal/verify/page.ts, apps/web/src/modules/m31_removal/components/RemovalForm.ts, apps/web/src/modules/m31_removal/components/RemovalVerify.ts, apps/web/src/modules/m31_removal/components/TurnstileWidget.ts, apps/web/src/modules/m31_removal/config.ts, apps/web/src/modules/m31_removal/crypto.ts, apps/web/src/modules/m31_removal/index.ts, apps/web/src/modules/m31_removal/jobs.ts, apps/web/src/modules/m31_removal/labels.ts, apps/web/src/modules/m31_removal/notify.ts, apps/web/src/modules/m31_removal/removal.test.ts, apps/web/src/modules/m31_removal/repo.ts, apps/web/src/modules/m31_removal/reviewTypes.ts, apps/web/src/modules/m31_removal/routes.ts, apps/web/src/modules/m31_removal/service.ts, apps/web/src/modules/m31_removal/types.ts, db/migrations/0031_m31_public_removal.sql
+- REQs claimed: REQ-037, REQ-064
+- Deviations reported: turnstileToken is forwarded into M05's existing threshold-based guardAnonymous('public_form') challenge rather than verified unconditionally on every submission, since M05 exposes no lower-level "always verify this token" primitive and changing M05 is out of scope; dedupeKey follows the LLD literally as sha256 of the normalised identifiers only (kind is not part of the hash), so a concurrent removal and correction request for the same identifiers dedupe into one open item (first submission's kind/details win) rather than filing separately; needs_identity_check is also applied when the submission has no domain-comparable identifier at all (companyName/phone/country only), since ownership cannot be verified either way, an extension of the literal rule; approve_correction/reject required fields (attribute+value / reasonKey) are validated defensively inside onOutcome (NonRetryable) rather than at resolve time, because M11's registerType has one outcomeSchema per type, not per outcome — same precedent as M17's sanctions review and M30's refund_exception; added an m31.purge_expired_challenges daily sweep for the challenge table, which is bookkeeping not specified by the LLD; built a minimal Cloudflare Turnstile front-end widget since none existed yet in M04, keyed off NEXT_PUBLIC_TURNSTILE_SITE_KEY (a naming convention, not specified by the LLD).
+
+## M32 Check a buyer — success
+
+- Ran: 2026-09-28T12:47:59.964Z to 2026-09-28T13:00:19.549Z
+- Cost: $4.7368 over 137 turns
+- Files written: apps/web/src/app/[locale]/check/page.ts, apps/web/src/modules/m32_check_buyer/advice.ts, apps/web/src/modules/m32_check_buyer/client.ts, apps/web/src/modules/m32_check_buyer/components/CheckBuyer.ts, apps/web/src/modules/m32_check_buyer/config.ts, apps/web/src/modules/m32_check_buyer/contextual.ts, apps/web/src/modules/m32_check_buyer/crypto.ts, apps/web/src/modules/m32_check_buyer/index.ts, apps/web/src/modules/m32_check_buyer/labels.ts, apps/web/src/modules/m32_check_buyer/repo.ts, apps/web/src/modules/m32_check_buyer/routes.ts, apps/web/src/modules/m32_check_buyer/rules.ts, apps/web/src/modules/m32_check_buyer/service.ts, apps/web/src/modules/m32_check_buyer/similarity.ts, apps/web/src/modules/m32_check_buyer/types.ts, apps/web/src/modules/m32_check_buyer/validate.ts, db/migrations/0032_m32_check_a_buyer.sql
+- REQs claimed: REQ-030, REQ-031, REQ-051
+- Deviations reported: freemail domain list duplicates M10's private FREEMAIL_DOMAINS (same precedent as M29 copying M05's crypto) since M10 does not export it; the `new_domain` and (contextual) `freemail` red flags are derived from M24's own domain_age/corporate_email check verdicts rather than an independent WHOIS/contact-domain reading, because M32 has no such access of its own and IF-24b's response does not carry raw age-in-days; contextual name_domain_mismatch is computed directly from ProfileDoc's own name/website fields; anonymous checks are never persisted to serving.check_run (no account row exists to attach them to) — only guardAnonymous('check') limits those, per LLD's own IF-05c mechanism, even though LLD M32's prose says "1 free check per day" while M05's concrete tunable for the `check` bucket is 3/hour (no second day-scoped limiter is defined anywhere in the LLD to build from); sanctions clear/possible/hit/unknown is read off M24's own `sanctions` check outcome + explanationKey suffix rather than a second independent M17 screen call, to keep one canonical sanctions verdict per check.
+
+## M33 Pipeline: shortlists, statuses and notes — failure
+
+- Ran: 2026-09-28T13:00:19.558Z to 2026-09-28T13:08:58.352Z
+- Cost: $2.8140 over 93 turns
+- Files written: apps/web/src/modules/m33_pipeline/components/StatusBadge.ts, apps/web/src/modules/m33_pipeline/config.ts, apps/web/src/modules/m33_pipeline/events.ts, apps/web/src/modules/m33_pipeline/index.ts, apps/web/src/modules/m33_pipeline/labels.ts, apps/web/src/modules/m33_pipeline/pipeline.test.ts, apps/web/src/modules/m33_pipeline/repo.ts, apps/web/src/modules/m33_pipeline/routes.ts, apps/web/src/modules/m33_pipeline/service.ts, apps/web/src/modules/m33_pipeline/types.ts, apps/web/src/modules/m33_pipeline/validate.ts, db/migrations/0033_m33_pipeline.sql
+- REQs claimed: (none)
+- Failed because: the SDK call did not succeed: Claude Code returned an error result: Reached maximum budget ($2.7755625999999936)
 - Failure kind: sdk (fed back into the next attempt's prompt)
 - Warning: agent did not emit a PIPELINE-PROGRESS block, so its REQ claims and deviation notes are unknown
 
